@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { CheckCircle, XCircle, Clock, RefreshCw, Search, Loader2, ChevronDown } from "lucide-react";
+import { CheckCircle, XCircle, Clock, RefreshCw, Search, Loader2, ChevronRight } from "lucide-react";
+import BookingDetailDrawer from "./BookingDetailDrawer";
 
 const statusConfig: Record<string, { label: string; icon: any; color: string; bg: string }> = {
   CONFIRMED:   { label: "Confirmed",   icon: CheckCircle, color: "#10b981", bg: "#d1fae5" },
@@ -18,8 +19,7 @@ export default function BookingsTable() {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("All");
   const [search, setSearch] = useState("");
-  const [actionRow, setActionRow] = useState<string | null>(null);
-  const [updating, setUpdating] = useState<string | null>(null);
+  const [selected, setSelected] = useState<any | null>(null);
 
   const load = (status?: string) => {
     setLoading(true);
@@ -32,22 +32,9 @@ export default function BookingsTable() {
 
   useEffect(() => { load(activeFilter); }, [activeFilter]);
 
-  const handleStatusChange = async (bookingId: string, newStatus: string) => {
-    setUpdating(bookingId);
-    setActionRow(null);
-    try {
-      const res = await fetch(`/api/bookings/${bookingId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setBookings((prev) => prev.map((b) => b.id === bookingId ? { ...b, status: updated.status } : b));
-      }
-    } finally {
-      setUpdating(null);
-    }
+  const handleUpdated = (updated: any) => {
+    setBookings((prev) => prev.map((b) => b.id === updated.id ? { ...b, ...updated } : b));
+    setSelected(updated);
   };
 
   const formatDate = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
@@ -101,7 +88,7 @@ export default function BookingsTable() {
                   <th className="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Event Type</th>
                   <th className="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Time</th>
                   <th className="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3.5"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -109,7 +96,7 @@ export default function BookingsTable() {
                   const s = statusConfig[b.status] ?? statusConfig.PENDING;
                   const SIcon = s.icon;
                   return (
-                    <tr key={b.id} className="hover:bg-gray-50/50 transition-colors">
+                    <tr key={b.id} onClick={() => setSelected(b)} className="hover:bg-pink-50/40 transition-colors cursor-pointer">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
@@ -133,26 +120,11 @@ export default function BookingsTable() {
                       </td>
                       <td className="px-6 py-4">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ color: s.color, backgroundColor: s.bg }}>
-                          {updating === b.id ? <Loader2 size={12} className="animate-spin" /> : <SIcon size={12} />}
-                          {s.label}
+                          <SIcon size={12} />{s.label}
                         </span>
                       </td>
-                      <td className="px-6 py-4 relative">
-                        <button onClick={() => setActionRow(actionRow === b.id ? null : b.id)}
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 hover:bg-gray-50 transition-colors text-gray-600">
-                          Actions <ChevronDown size={12} />
-                        </button>
-                        {actionRow === b.id && (
-                          <div className="absolute right-6 top-12 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-10 w-40">
-                            {["CONFIRMED", "COMPLETED", "CANCELLED", "NO_SHOW"].filter((st) => st !== b.status).map((st) => (
-                              <button key={st} onClick={() => handleStatusChange(b.id, st)}
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: statusConfig[st]?.color }} />
-                                {statusConfig[st]?.label}
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                      <td className="px-6 py-4 text-right">
+                        <ChevronRight size={16} className="text-gray-300 inline" />
                       </td>
                     </tr>
                   );
@@ -162,6 +134,8 @@ export default function BookingsTable() {
           </div>
         )}
       </div>
+
+      <BookingDetailDrawer booking={selected} onClose={() => setSelected(null)} onUpdated={handleUpdated} />
     </div>
   );
 }

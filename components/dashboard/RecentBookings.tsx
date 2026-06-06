@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { CheckCircle, XCircle, Clock, MoreHorizontal, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, Clock, ChevronRight, Loader2 } from "lucide-react";
+import BookingDetailDrawer from "./BookingDetailDrawer";
 
 const statusConfig: Record<string, { label: string; icon: any; color: string; bg: string }> = {
   CONFIRMED:  { label: "Confirmed",  icon: CheckCircle, color: "#10b981", bg: "#d1fae5" },
@@ -12,6 +13,7 @@ const statusConfig: Record<string, { label: string; icon: any; color: string; bg
 export default function RecentBookings() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<any | null>(null);
 
   useEffect(() => {
     fetch("/api/bookings?limit=6")
@@ -19,6 +21,11 @@ export default function RecentBookings() {
       .then(setBookings)
       .finally(() => setLoading(false));
   }, []);
+
+  const handleUpdated = (updated: any) => {
+    setBookings((prev) => prev.map((b) => b.id === updated.id ? { ...b, ...updated } : b));
+    setSelected(updated);
+  };
 
   const formatDate = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   const formatTime = (iso: string) => new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
@@ -57,7 +64,7 @@ export default function RecentBookings() {
                 const s = statusConfig[b.status] ?? statusConfig.PENDING;
                 const SIcon = s.icon;
                 return (
-                  <tr key={b.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={b.id} onClick={() => setSelected(b)} className="hover:bg-pink-50/40 transition-colors cursor-pointer">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
@@ -79,10 +86,8 @@ export default function RecentBookings() {
                         <SIcon size={12} />{s.label}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <button className="p-1 rounded-lg hover:bg-gray-100 transition-colors">
-                        <MoreHorizontal size={16} className="text-gray-400" />
-                      </button>
+                    <td className="px-6 py-4 text-right">
+                      <ChevronRight size={16} className="text-gray-300 inline" />
                     </td>
                   </tr>
                 );
@@ -91,6 +96,8 @@ export default function RecentBookings() {
           </table>
         </div>
       )}
+
+      <BookingDetailDrawer booking={selected} onClose={() => setSelected(null)} onUpdated={handleUpdated} />
     </div>
   );
 }
