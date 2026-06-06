@@ -2,16 +2,19 @@ export const dynamic = "force-dynamic";
 
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import OnboardingForm from "@/components/onboarding/OnboardingForm";
+import { prisma } from "@/lib/prisma";
+import GuidedOnboarding from "@/components/onboarding/GuidedOnboarding";
 
 export default async function OnboardingPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  // If they already have a username, skip onboarding
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/api/user/profile`, {
-    headers: { cookie: "" }, // server-side fetch handled via auth()
+  // If they already finished onboarding (have a username), go to dashboard
+  const user = await prisma.user.findUnique({
+    where: { id: (session.user as any).id },
+    select: { username: true },
   });
+  if (user?.username) redirect("/dashboard");
 
-  return <OnboardingForm userName={session.user?.name ?? ""} />;
+  return <GuidedOnboarding userName={session.user?.name ?? ""} />;
 }
