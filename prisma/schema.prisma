@@ -1,0 +1,241 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token             String?
+  access_token              String?
+  expires_at                Int?
+  token_type                String?
+  scope                     String?
+  id_token                  String?
+  session_state             String?
+  refresh_token_expires_in  Int?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String?
+  email         String?        @unique
+  emailVerified DateTime?
+  image         String?
+  username      String?        @unique
+  bio           String?
+  timezone      String         @default("UTC")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  accounts      Account[]
+  availability  Availability[]
+  bookings      Booking[]      @relation("HostBookings")
+  dateOverrides DateOverride[]
+  eventTypes    EventType[]
+  sessions      Session[]
+  ownedOrgs      Organization[]  @relation("OrgOwner")
+  orgMemberships OrgMember[]
+  waitlistEntries WaitlistEntry[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model EventType {
+  id           String    @id @default(cuid())
+  userId       String
+  title        String
+  slug         String
+  description  String?
+  duration     Int
+  price        Float     @default(0)
+  currency     String    @default("USD")
+  isActive     Boolean   @default(true)
+  color        String    @default("#3B82F6")
+  location     String?
+  meetingLink  String?
+  bufferBefore Int       @default(0)
+  bufferAfter  Int       @default(0)
+  minNotice    Int       @default(60)
+  maxDaysAhead Int       @default(60)
+  questions    Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  bookings        Booking[]
+  waitlistEntries WaitlistEntry[]
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, slug])
+}
+
+model Availability {
+  id        String  @id @default(cuid())
+  userId    String
+  dayOfWeek Int
+  startTime String
+  endTime   String
+  isActive  Boolean @default(true)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DateOverride {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime
+  isBlocked Boolean  @default(false)
+  startTime String?
+  endTime   String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  id             String        @id @default(cuid())
+  eventTypeId    String
+  hostId         String
+  orgId          String?
+  inviteeName    String
+  inviteeEmail   String
+  inviteePhone   String?
+  startTime      DateTime
+  endTime        DateTime
+  timezone       String
+  status         BookingStatus @default(PENDING)
+  meetingLink    String?
+  location       String?
+  notes          String?
+  answers        Json?
+  cancelReason   String?
+  cancelToken    String?       @unique
+  sms24hSentAt   DateTime?
+  sms1hSentAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  eventType      EventType     @relation(fields: [eventTypeId], references: [id])
+  host           User          @relation("HostBookings", fields: [hostId], references: [id])
+  organization   Organization? @relation(fields: [orgId], references: [id])
+}
+
+model WaitlistEntry {
+  id          String   @id @default(cuid())
+  eventTypeId String
+  hostId      String
+  name        String
+  email       String
+  phone       String?
+  timezone    String
+  notified    Boolean  @default(false)
+  notifiedAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  eventType   EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+  host        User      @relation(fields: [hostId], references: [id], onDelete: Cascade)
+
+  @@unique([eventTypeId, email])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  RESCHEDULED
+  COMPLETED
+  NO_SHOW
+}
+
+// ============================================
+// ORGANIZATIONS / TEAMS
+// ============================================
+
+model Organization {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  type        String      @default("general")
+  logo        String?
+  description String?
+  website     String?
+  phone       String?
+  address     String?
+  timezone    String      @default("UTC")
+  plan        String      @default("team")
+  ownerId     String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  owner       User        @relation("OrgOwner", fields: [ownerId], references: [id])
+  members     OrgMember[]
+  departments Department[]
+  invites     OrgInvite[]
+  bookings    Booking[]
+}
+
+model OrgMember {
+  id       String  @id @default(cuid())
+  orgId    String
+  userId   String
+  role     OrgRole @default(MEMBER)
+  title    String?
+  deptId   String?
+  isActive Boolean @default(true)
+  joinedAt DateTime @default(now())
+
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department Department?  @relation(fields: [deptId], references: [id])
+
+  @@unique([orgId, userId])
+}
+
+model Department {
+  id    String @id @default(cuid())
+  orgId String
+  name  String
+  color String @default("#3B82F6")
+
+  org     Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  members OrgMember[]
+}
+
+model OrgInvite {
+  id        String   @id @default(cuid())
+  orgId     String
+  email     String
+  role      OrgRole  @default(MEMBER)
+  token     String   @unique @default(cuid())
+  expiresAt DateTime
+  accepted  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, email])
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
