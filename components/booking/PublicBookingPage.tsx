@@ -44,9 +44,10 @@ export default function PublicBookingPage({ username }: { username: string }) {
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
   const [selectedDate, setSelectedDate]   = useState<Date | null>(null);
-  const [slots, setSlots]                 = useState<string[]>([]);
+  const [slots, setSlots]                 = useState<{ start: string; label: string }[]>([]);
   const [slotsLoading, setSlotsLoading]   = useState(false);
-  const [selectedTime, setSelectedTime]   = useState<string | null>(null);
+  const [selectedSlot, setSelectedSlot]   = useState<{ start: string; label: string } | null>(null);
+  const selectedTime = selectedSlot?.label ?? null;
   const [form, setForm]                   = useState({ name: "", email: "", phone: "", notes: "" });
   const [answers, setAnswers]             = useState<Record<string, string>>({});
   const [submitting, setSubmitting]       = useState(false);
@@ -75,7 +76,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
     setSlotsLoading(true);
     setSlots([]);
     fetch(
-      `/api/book/${username}/slots?date=${toDateStr(selectedDate)}&slug=${selectedEvent.slug}&duration=${selectedEvent.duration}`
+      `/api/book/${username}/slots?date=${toDateStr(selectedDate)}&slug=${selectedEvent.slug}&duration=${selectedEvent.duration}&tz=${encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone)}`
     )
       .then((r) => r.json())
       .then((data) => setSlots(data.slots ?? []))
@@ -103,7 +104,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
 
   const handleBook = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedEvent || !selectedDate || !selectedTime) return;
+    if (!selectedEvent || !selectedDate || !selectedSlot) return;
     setSubmitting(true);
     try {
       const res = await fetch(`/api/book/${username}/confirm`, {
@@ -111,8 +112,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           eventSlug: selectedEvent.slug,
-          date: toDateStr(selectedDate),
-          time: selectedTime,
+          start: selectedSlot.start,
           name: form.name,
           email: form.email,
           phone: form.phone || null,
@@ -417,14 +417,14 @@ export default function PublicBookingPage({ username }: { username: string }) {
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-2.5">
-                    {slots.map((time) => (
+                    {slots.map((slot) => (
                       <button
-                        key={time}
-                        onClick={() => { setSelectedTime(time); setStep("fill-form"); }}
+                        key={slot.start}
+                        onClick={() => { setSelectedSlot(slot); setStep("fill-form"); }}
                         className="py-3 rounded-xl text-sm font-medium border-2 transition-all hover:border-pink-400 hover:text-pink-600 hover:bg-pink-50"
                         style={{ borderColor: "#e5e7eb" }}
                       >
-                        {time}
+                        {slot.label}
                       </button>
                     ))}
                   </div>
@@ -588,7 +588,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
                   setStep("select-service");
                   setSelectedEvent(null);
                   setSelectedDate(null);
-                  setSelectedTime(null);
+                  setSelectedSlot(null);
                   setSlots([]);
                   setBookingId(null);
                   setForm({ name: "", email: "", phone: "", notes: "" });

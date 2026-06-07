@@ -35,13 +35,13 @@ export default function BookingDetailDrawer({
   const [mode, setMode] = useState<"view" | "reschedule">("view");
   const [username, setUsername] = useState<string | null>(null);
   const [rsDate, setRsDate] = useState("");
-  const [slots, setSlots] = useState<string[]>([]);
+  const [slots, setSlots] = useState<{ start: string; label: string }[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
-  const [rsTime, setRsTime] = useState<string | null>(null);
+  const [rsSlot, setRsSlot] = useState<{ start: string; label: string } | null>(null);
   const [rsSaving, setRsSaving] = useState(false);
 
   useEffect(() => {
-    setMode("view"); setRsDate(""); setRsTime(null); setSlots([]);
+    setMode("view"); setRsDate(""); setRsSlot(null); setSlots([]);
   }, [booking?.id]);
 
   useEffect(() => {
@@ -52,8 +52,9 @@ export default function BookingDetailDrawer({
 
   useEffect(() => {
     if (mode !== "reschedule" || !rsDate || !username || !booking?.eventType?.slug) return;
-    setSlotsLoading(true); setSlots([]); setRsTime(null);
-    fetch(`/api/book/${username}/slots?date=${rsDate}&slug=${booking.eventType.slug}&duration=${booking.eventType.duration}`)
+    setSlotsLoading(true); setSlots([]); setRsSlot(null);
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    fetch(`/api/book/${username}/slots?date=${rsDate}&slug=${booking.eventType.slug}&duration=${booking.eventType.duration}&tz=${encodeURIComponent(tz)}`)
       .then((r) => r.json())
       .then((d) => setSlots(d.slots ?? []))
       .finally(() => setSlotsLoading(false));
@@ -95,13 +96,13 @@ export default function BookingDetailDrawer({
   };
 
   const submitReschedule = async () => {
-    if (!rsDate || !rsTime) return;
+    if (!rsSlot) return;
     setRsSaving(true);
     try {
       const res = await fetch(`/api/bookings/${booking.id}/reschedule`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: rsDate, time: rsTime, timezone: booking.timezone }),
+        body: JSON.stringify({ start: rsSlot.start, timezone: booking.timezone }),
       });
       if (res.ok) {
         const updated = await res.json();
@@ -252,18 +253,18 @@ export default function BookingDetailDrawer({
                     <p className="text-xs text-gray-400 py-2">No open slots on this day.</p>
                   ) : (
                     <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
-                      {slots.map((t) => (
-                        <button key={t} onClick={() => setRsTime(t)}
-                          className={`py-2 rounded-lg text-xs font-medium border-2 transition-colors ${rsTime === t ? "text-white border-transparent" : "border-gray-200 text-gray-600 hover:border-pink-300"}`}
-                          style={rsTime === t ? { backgroundColor: "#e53e6d" } : {}}>
-                          {t}
+                      {slots.map((slot) => (
+                        <button key={slot.start} onClick={() => setRsSlot(slot)}
+                          className={`py-2 rounded-lg text-xs font-medium border-2 transition-colors ${rsSlot?.start === slot.start ? "text-white border-transparent" : "border-gray-200 text-gray-600 hover:border-pink-300"}`}
+                          style={rsSlot?.start === slot.start ? { backgroundColor: "#e53e6d" } : {}}>
+                          {slot.label}
                         </button>
                       ))}
                     </div>
                   )}
                 </div>
               )}
-              <button onClick={submitReschedule} disabled={!rsTime || rsSaving}
+              <button onClick={submitReschedule} disabled={!rsSlot || rsSaving}
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
                 style={{ backgroundColor: "#e53e6d" }}>
                 {rsSaving ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}

@@ -11,9 +11,9 @@ export async function POST(
 ) {
   const { username } = await params;
   const body = await req.json();
-  const { eventSlug, date, time, name, email, phone, notes, timezone, answers } = body;
+  const { eventSlug, start, name, email, phone, notes, timezone, answers } = body;
 
-  if (!eventSlug || !date || !time || !name || !email) {
+  if (!eventSlug || !start || !name || !email) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
@@ -25,14 +25,8 @@ export async function POST(
   });
   if (!eventType) return NextResponse.json({ error: "Event type not found" }, { status: 404 });
 
-  const [year, month, day] = date.split("-").map(Number);
-  const [timePart, ampm] = time.split(" ");
-  const [rawH, rawM] = timePart.split(":").map(Number);
-  let hours = rawH;
-  if (ampm === "PM" && rawH !== 12) hours += 12;
-  if (ampm === "AM" && rawH === 12) hours = 0;
-
-  const startTime = new Date(year, month - 1, day, hours, rawM, 0);
+  const startTime = new Date(start);
+  if (isNaN(startTime.getTime())) return NextResponse.json({ error: "Invalid start time" }, { status: 400 });
   const endTime   = new Date(startTime.getTime() + eventType.duration * 60 * 1000);
   const cancelToken = randomUUID();
 

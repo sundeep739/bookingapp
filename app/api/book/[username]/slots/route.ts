@@ -2,18 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getFreshGoogleAccessToken } from "@/lib/google-token";
 import { getCalendarBusyTimes } from "@/lib/google-calendar";
+import { fromZonedTime } from "date-fns-tz";
 
 function toMinutes(time: string): number {
   const [h, m] = time.split(":").map(Number);
   return h * 60 + m;
 }
 
-function formatSlot(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  const ampm = h >= 12 ? "PM" : "AM";
-  const display = h > 12 ? h - 12 : h === 0 ? 12 : h;
-  return `${display}:${m.toString().padStart(2, "0")} ${ampm}`;
+// Build an absolute UTC instant for a wall-clock time on a given date in `tz`
+function instantFor(dateStr: string, minutes: number, tz: string): Date {
+  const h = String(Math.floor(minutes / 60)).padStart(2, "0");
+  const m = String(minutes % 60).padStart(2, "0");
+  return fromZonedTime(`${dateStr}T${h}:${m}:00`, tz);
 }
 
 export async function GET(
@@ -22,18 +22,19 @@ export async function GET(
 ) {
   const { username } = await params;
   const { searchParams } = req.nextUrl;
-  const dateStr    = searchParams.get("date");
+  const dateStr    = searchParams.get("date");   // YYYY-MM-DD (calendar date in host tz)
   const eventSlug  = searchParams.get("slug");
   const duration   = parseInt(searchParams.get("duration") ?? "30");
+  const guestTz    = searchParams.get("tz") || "UTC";
 
   if (!dateStr || !eventSlug) {
     return NextResponse.json({ error: "Missing date or slug" }, { status: 400 });
   }
 
-  const user = await prisma.user.findUnique({ where: { username }, select: { id: true } });
+  const user = await prisma.user.findUnique({ where: { username }, select: { id: true, timezone: true } });
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+  const hostTz = user.timezone || "UTC";
 
-  // Get event type for buffer times + min notice + max days ahead
   const eventType = await prisma.eventType.findFirst({
     where: { userId: user.id, slug: eventSlug },
     select: { bufferBefore: true, bufferAfter: true, minNotice: true, maxDaysAhead: true },
@@ -44,19 +45,18 @@ export async function GET(
   const minNotice    = eventType?.minNotice    ?? 0;  // minutes
   const maxDaysAhead = eventType?.maxDaysAhead ?? 60;
 
-  // Enforce min notice & max days ahead
   const now = new Date();
   const [year, month, day] = dateStr.split("-").map(Number);
-  const requestedDate = new Date(year, month - 1, day);
-  requestedDate.setHours(0, 0, 0, 0);
 
-  const maxDate = new Date(now);
-  maxDate.setDate(maxDate.getDate() + maxDaysAhead);
-  maxDate.setHours(23, 59, 59, 999);
+  // Max-days-ahead guard (compare the start of the requested day in host tz)
+  const dayStartInstant = instantFor(dateStr, 0, hostTz);
+  const maxInstant = new Date(now.getTime() + maxDaysAhead * 24 * 60 * 60 * 1000);
+  if (dayStartInstant > maxInstant) return NextResponse.json({ slots: [] });
 
-  if (requestedDate > maxDate) return NextResponse.json({ slots: [] });
-
-  const dayOfWeek = requestedDate.getDay();
+  // Day of week as seen in the host's timezone
+  const dayOfWeek = new Date(
+    new Date(dayStartInstant).toLocaleString("en-US", { timeZone: hostTz })
+  ).getDay();
 
   // Date override check
   const override = await prisma.dateOverride.findFirst({
@@ -67,10 +67,9 @@ export async function GET(
   });
   if (override?.isBlocked) return NextResponse.json({ slots: [] });
 
-  // Get availability window
+  // Availability window (wall-clock minutes in host tz)
   let startMin: number;
   let endMin: number;
-
   if (override?.startTime && override?.endTime) {
     startMin = toMinutes(override.startTime);
     endMin   = toMinutes(override.endTime);
@@ -83,31 +82,33 @@ export async function GET(
     endMin   = toMinutes(avail.endTime);
   }
 
-  // Existing bookings (with buffers) to block
-  const dayStart = new Date(year, month - 1, day, 0, 0, 0);
-  const dayEnd   = new Date(year, month - 1, day, 23, 59, 59);
+  // Existing bookings as absolute instants (with buffers)
+  const windowStart = instantFor(dateStr, Math.max(0, startMin - 120), hostTz);
+  const windowEnd   = instantFor(dateStr, endMin + 120, hostTz);
   const bookings = await prisma.booking.findMany({
-    where: { hostId: user.id, status: { in: ["CONFIRMED", "PENDING"] }, startTime: { gte: dayStart, lte: dayEnd } },
+    where: {
+      hostId: user.id,
+      status: { in: ["CONFIRMED", "PENDING"] },
+      startTime: { gte: windowStart, lte: windowEnd },
+    },
     select: { startTime: true, endTime: true },
   });
 
-  const bookedRanges = bookings.map((b) => ({
-    start: b.startTime.getHours() * 60 + b.startTime.getMinutes() - bufferBefore,
-    end:   b.endTime.getHours()   * 60 + b.endTime.getMinutes()   + bufferAfter,
+  const blocked: { start: number; end: number }[] = bookings.map((b) => ({
+    start: b.startTime.getTime() - bufferBefore * 60000,
+    end:   b.endTime.getTime()   + bufferAfter  * 60000,
   }));
 
-  // Block times the host is busy in their connected Google Calendar (two-way sync)
+  // Google Calendar busy times (absolute instants)
   try {
     const token = await getFreshGoogleAccessToken(user.id);
     if (token) {
-      const busy = await getCalendarBusyTimes(token, dayStart, dayEnd);
+      const busy = await getCalendarBusyTimes(token, windowStart, windowEnd);
       for (const b of busy) {
         if (!b.start || !b.end) continue;
-        const bs = new Date(b.start);
-        const be = new Date(b.end);
-        bookedRanges.push({
-          start: bs.getHours() * 60 + bs.getMinutes() - bufferBefore,
-          end:   be.getHours() * 60 + be.getMinutes() + bufferAfter,
+        blocked.push({
+          start: new Date(b.start).getTime() - bufferBefore * 60000,
+          end:   new Date(b.end).getTime()   + bufferAfter  * 60000,
         });
       }
     }
@@ -115,18 +116,21 @@ export async function GET(
     console.error("Free/busy lookup failed:", e);
   }
 
-  // Min notice: earliest bookable time = now + minNotice
-  const earliestMinutes = requestedDate.toDateString() === now.toDateString()
-    ? now.getHours() * 60 + now.getMinutes() + minNotice
-    : 0;
+  const earliest = now.getTime() + minNotice * 60000;
 
-  // Generate slots
-  const slots: string[] = [];
+  const labelFmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: guestTz, hour: "numeric", minute: "2-digit", hour12: true,
+  });
+
+  const slots: { start: string; label: string }[] = [];
   for (let t = startMin; t + duration <= endMin; t += 30) {
-    if (t < earliestMinutes) continue;
-    const slotEnd = t + duration;
-    const overlaps = bookedRanges.some((b) => t < b.end && slotEnd > b.start);
-    if (!overlaps) slots.push(formatSlot(t));
+    const startInstant = instantFor(dateStr, t, hostTz);
+    const endInstant = new Date(startInstant.getTime() + duration * 60000);
+    const sMs = startInstant.getTime();
+    const eMs = endInstant.getTime();
+    if (sMs < earliest) continue;
+    const overlaps = blocked.some((b) => sMs < b.end && eMs > b.start);
+    if (!overlaps) slots.push({ start: startInstant.toISOString(), label: labelFmt.format(startInstant) });
   }
 
   return NextResponse.json({ slots });
