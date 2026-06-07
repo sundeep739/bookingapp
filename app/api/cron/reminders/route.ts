@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendSmsReminder } from "@/lib/sms";
+import { limitsFor } from "@/lib/plan";
 
 // Vercel Cron Job — runs every 30 minutes (configured in vercel.json)
 // Sends SMS reminders 24h and 1h before each booking
@@ -26,7 +27,7 @@ export async function GET(req: Request) {
       startTime: { gte: in24hStart, lte: in24hEnd },
     },
     include: {
-      host: { select: { name: true } },
+      host: { select: { name: true, plan: true } },
       eventType: { select: { title: true } },
     },
   });
@@ -43,7 +44,7 @@ export async function GET(req: Request) {
       startTime: { gte: in1hStart, lte: in1hEnd },
     },
     include: {
-      host: { select: { name: true } },
+      host: { select: { name: true, plan: true } },
       eventType: { select: { title: true } },
     },
   });
@@ -54,6 +55,7 @@ export async function GET(req: Request) {
 
   // Send 24h reminders
   for (const booking of due24h) {
+    if (!limitsFor(booking.host.plan).sms) continue; // gated to paid plans
     try {
       await sendSmsReminder({
         to: booking.inviteePhone!,
@@ -76,6 +78,7 @@ export async function GET(req: Request) {
 
   // Send 1h reminders
   for (const booking of due1h) {
+    if (!limitsFor(booking.host.plan).sms) continue; // gated to paid plans
     try {
       await sendSmsReminder({
         to: booking.inviteePhone!,

@@ -242,15 +242,23 @@ function MembersTab({ org, onRefresh }: { org: any; onRefresh: () => void }) {
   const [inviteSuccess, setInviteSuccess] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
 
+  const [inviteError, setInviteError] = useState("");
+
   const sendInvite = async () => {
     if (!inviteEmail) return;
     setInviting(true);
-    await fetch(`/api/org/${org.slug}/members`, {
+    setInviteError("");
+    const res = await fetch(`/api/org/${org.slug}/members`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
     });
     setInviting(false);
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setInviteError(data.error ?? "Could not send invite");
+      return;
+    }
     setInviteSuccess(true);
     setInviteEmail("");
     setTimeout(() => setInviteSuccess(false), 3000);
@@ -332,6 +340,7 @@ function MembersTab({ org, onRefresh }: { org: any; onRefresh: () => void }) {
               </button>
               {inviteSuccess && <span className="flex items-center gap-1 text-sm text-green-600"><CheckCircle size={14} /> Invite sent!</span>}
             </div>
+            {inviteError && <p className="text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">{inviteError}</p>}
           </div>
         )}
 

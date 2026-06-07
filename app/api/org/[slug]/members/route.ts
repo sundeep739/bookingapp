@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
+import { limitsFor } from "@/lib/plan";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -31,9 +32,28 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
 
   const member = await prisma.orgMember.findFirst({
     where: { org: { slug }, userId, role: { in: ["OWNER", "ADMIN"] } },
-    include: { org: true },
+    include: { org: { include: { owner: { select: { plan: true } } } } },
   });
   if (!member) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  // ── Plan staff-limit enforcement (based on the org owner's plan) ──────────
+  const limits = limitsFor(member.org.owner.plan);
+  const [memberCount, inviteCount] = await Promise.all([
+    prisma.orgMember.count({ where: { orgId: member.org.id, isActive: true } }),
+    prisma.orgInvite.count({ where: { orgId: member.org.id, accepted: false } }),
+  ]);
+  if (memberCount + inviteCount >= limits.maxStaff) {
+    return NextResponse.json(
+      {
+        error:
+          limits.maxStaff <= 1
+            ? "Adding staff requires a Team plan. Upgrade in Settings → Billing to invite your team."
+            : `Your plan allows up to ${limits.maxStaff} team members. Upgrade to add more.`,
+        upgrade: true,
+      },
+      { status: 402 }
+    );
+  }
 
   const { email, role, title, deptId } = await req.json();
   if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });

@@ -31,26 +31,51 @@ export async function POST(
   const endTime = new Date(startTime.getTime() + eventType.duration * 60 * 1000);
   const cancelToken = randomUUID();
 
+  if (startTime.getTime() < Date.now()) {
+    return NextResponse.json({ error: "That time is in the past." }, { status: 409 });
+  }
+
   const requiresPayment =
     eventType.price > 0 && host.stripeChargesEnabled && host.stripeConnectId && stripe;
 
-  const booking = await prisma.booking.create({
-    data: {
-      eventTypeId:  eventType.id,
-      hostId:       host.id,
-      inviteeName:  name,
-      inviteeEmail: email,
-      inviteePhone: phone ?? null,
-      startTime,
-      endTime,
-      timezone:     timezone ?? "UTC",
-      notes:        notes ?? null,
-      answers:      answers && Object.keys(answers).length ? answers : undefined,
-      status:       requiresPayment ? "PENDING" : "CONFIRMED",
-      paymentStatus: requiresPayment ? "PENDING" : "NONE",
-      cancelToken,
-    },
-  });
+  // ── Double-booking guard: re-check the slot is still free, atomically ─────
+  let booking;
+  try {
+    booking = await prisma.$transaction(async (tx) => {
+      const clash = await tx.booking.findFirst({
+        where: {
+          hostId: host.id,
+          status: { in: ["CONFIRMED", "PENDING"] },
+          startTime: { lt: endTime },
+          endTime: { gt: startTime },
+        },
+        select: { id: true },
+      });
+      if (clash) throw new Error("SLOT_TAKEN");
+      return tx.booking.create({
+        data: {
+          eventTypeId:  eventType.id,
+          hostId:       host.id,
+          inviteeName:  name,
+          inviteeEmail: email,
+          inviteePhone: phone ?? null,
+          startTime,
+          endTime,
+          timezone:     timezone ?? "UTC",
+          notes:        notes ?? null,
+          answers:      answers && Object.keys(answers).length ? answers : undefined,
+          status:       requiresPayment ? "PENDING" : "CONFIRMED",
+          paymentStatus: requiresPayment ? "PENDING" : "NONE",
+          cancelToken,
+        },
+      });
+    }, { isolationLevel: "Serializable" });
+  } catch (e: any) {
+    if (e?.message === "SLOT_TAKEN" || e?.code === "P2034") {
+      return NextResponse.json({ error: "Sorry, that time was just booked. Please pick another slot." }, { status: 409 });
+    }
+    throw e;
+  }
 
   // ── Paid booking → Stripe Checkout (destination charge to the host) ───────
   if (requiresPayment) {

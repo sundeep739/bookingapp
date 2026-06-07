@@ -133,8 +133,12 @@ export default function PublicBookingPage({ username }: { username: string }) {
       if (data.success) {
         setBookingId(data.bookingId);
         setStep("confirmed");
+      } else if (res.status === 409) {
+        alert(data.error ?? "That time was just taken. Please choose another.");
+        setSelectedSlot(null);
+        setStep("pick-time");
       } else {
-        alert("Something went wrong. Please try again.");
+        alert(data.error ?? "Something went wrong. Please try again.");
       }
     } finally {
       setSubmitting(false);
