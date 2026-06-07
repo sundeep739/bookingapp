@@ -227,7 +227,7 @@ function OrgDetail({ org, stats, activeTab, setActiveTab, onBack, onRefresh }: a
       {activeTab === "members" && <MembersTab org={org} onRefresh={onRefresh} />}
       {activeTab === "departments" && <DepartmentsTab org={org} onRefresh={onRefresh} />}
       {activeTab === "bookings" && <OrgBookingsTab slug={org.slug} members={org.members} />}
-      {activeTab === "settings" && <OrgSettingsTab org={org} onRefresh={onRefresh} />}
+      {activeTab === "settings" && <OrgSettingsTab org={org} onRefresh={onRefresh} onDeleted={onBack} />}
     </div>
   );
 }
@@ -261,6 +261,27 @@ function MembersTab({ org, onRefresh }: { org: any; onRefresh: () => void }) {
     setRemovingId(memberId);
     await fetch(`/api/org/${org.slug}/members/${memberId}`, { method: "DELETE" });
     setRemovingId(null);
+    onRefresh();
+  };
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<{ role: string; title: string; deptId: string }>({ role: "MEMBER", title: "", deptId: "" });
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const startEdit = (m: any) => {
+    setEditingId(m.id);
+    setEditForm({ role: m.role, title: m.title ?? "", deptId: m.deptId ?? "" });
+  };
+
+  const saveEdit = async (memberId: string) => {
+    setSavingEdit(true);
+    await fetch(`/api/org/${org.slug}/members/${memberId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role: editForm.role, title: editForm.title || null, deptId: editForm.deptId || null }),
+    });
+    setSavingEdit(false);
+    setEditingId(null);
     onRefresh();
   };
 
@@ -318,46 +339,93 @@ function MembersTab({ org, onRefresh }: { org: any; onRefresh: () => void }) {
         <div className="divide-y divide-gray-50">
           {org.members?.map((member: any) => {
             const RoleIcon = ROLE_ICONS[member.role] || UserIcon;
+            const isEditing = editingId === member.id;
             return (
-              <div key={member.id} className="flex items-center gap-3 py-3">
-                {member.user.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={member.user.image} alt="" className="rounded-xl flex-shrink-0 w-10 h-10 object-cover" />
-                ) : (
-                  <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white font-semibold text-sm"
-                    style={{ background: "linear-gradient(135deg,#e53e6d,#f97316)" }}>
-                    {(member.user.name || "?")[0]}
+              <div key={member.id} className="py-3">
+                <div className="flex items-center gap-3">
+                  {member.user.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={member.user.image} alt="" className="rounded-xl flex-shrink-0 w-10 h-10 object-cover" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white font-semibold text-sm"
+                      style={{ background: "linear-gradient(135deg,#e53e6d,#f97316)" }}>
+                      {(member.user.name || "?")[0]}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-semibold text-gray-900">{member.user.name}</p>
+                      <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[member.role]}`}>
+                        <RoleIcon size={10} />{member.role.toLowerCase()}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400">{member.user.email}</p>
+                    {member.title && <p className="text-xs text-gray-500">{member.title}</p>}
+                    {member.department && (
+                      <span className="inline-block mt-0.5 px-1.5 py-0.5 rounded text-xs text-white" style={{ backgroundColor: member.department.color }}>
+                        {member.department.name}
+                      </span>
+                    )}
                   </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-sm font-semibold text-gray-900">{member.user.name}</p>
-                    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[member.role]}`}>
-                      <RoleIcon size={10} />{member.role.toLowerCase()}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-400">{member.user.email}</p>
-                  {member.title && <p className="text-xs text-gray-500">{member.title}</p>}
-                  {member.department && (
-                    <span className="inline-block mt-0.5 px-1.5 py-0.5 rounded text-xs text-white" style={{ backgroundColor: member.department.color }}>
-                      {member.department.name}
-                    </span>
+                  {member.user.username && (
+                    <a href={`/${member.user.username}`} target="_blank" rel="noreferrer"
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                      <ExternalLink size={14} />
+                    </a>
+                  )}
+                  {member.role !== "OWNER" && (
+                    <>
+                      <button
+                        onClick={() => (isEditing ? setEditingId(null) : startEdit(member))}
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                      <button
+                        onClick={() => removeMember(member.id)}
+                        disabled={removingId === member.id}
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-40"
+                      >
+                        {removingId === member.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                      </button>
+                    </>
                   )}
                 </div>
-                {member.user.username && (
-                  <a href={`/${member.user.username}`} target="_blank" rel="noreferrer"
-                    className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
-                    <ExternalLink size={14} />
-                  </a>
-                )}
-                {member.role !== "OWNER" && (
-                  <button
-                    onClick={() => removeMember(member.id)}
-                    disabled={removingId === member.id}
-                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-40"
-                  >
-                    {removingId === member.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                  </button>
+
+                {/* Inline editor */}
+                {isEditing && (
+                  <div className="mt-3 bg-gray-50 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Role</label>
+                      <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-pink-400">
+                        <option value="MEMBER">Member</option>
+                        <option value="ADMIN">Admin</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Title</label>
+                      <input value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                        placeholder="e.g. Senior Stylist"
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-pink-400" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Department</label>
+                      <select value={editForm.deptId} onChange={(e) => setEditForm({ ...editForm, deptId: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-pink-400">
+                        <option value="">None</option>
+                        {(org.departments ?? []).map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                      </select>
+                    </div>
+                    <div className="sm:col-span-3 flex items-center gap-2">
+                      <button onClick={() => saveEdit(member.id)} disabled={savingEdit}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-60" style={{ backgroundColor: "#e53e6d" }}>
+                        {savingEdit ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />} Save
+                      </button>
+                      <button onClick={() => setEditingId(null)}
+                        className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 text-gray-600 hover:bg-white">Cancel</button>
+                    </div>
+                  </div>
                 )}
               </div>
             );
@@ -521,7 +589,7 @@ function OrgBookingsTab({ slug, members }: { slug: string; members: any[] }) {
 
 // ─── Settings Tab ─────────────────────────────────────────────────────────────
 
-function OrgSettingsTab({ org, onRefresh }: { org: any; onRefresh: () => void }) {
+function OrgSettingsTab({ org, onRefresh, onDeleted }: { org: any; onRefresh: () => void; onDeleted: () => void }) {
   const [form, setForm] = useState({
     name: org.name || "",
     description: org.description || "",
@@ -548,7 +616,20 @@ function OrgSettingsTab({ org, onRefresh }: { org: any; onRefresh: () => void })
     onRefresh();
   };
 
+  const [deleting, setDeleting] = useState(false);
+
+  const deleteOrg = async () => {
+    if (!confirm(`Delete "${org.name}"? This permanently removes the organization, its departments and team memberships. Bookings are kept. This cannot be undone.`)) return;
+    if (!confirm("Are you absolutely sure? This is permanent.")) return;
+    setDeleting(true);
+    const res = await fetch(`/api/org/${org.slug}`, { method: "DELETE" });
+    setDeleting(false);
+    if (res.ok) onDeleted();
+    else alert((await res.json()).error ?? "Could not delete organization");
+  };
+
   return (
+    <div className="space-y-4">
     <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
       <h3 className="font-semibold text-gray-900">Organization Settings</h3>
 
@@ -630,6 +711,20 @@ function OrgSettingsTab({ org, onRefresh }: { org: any; onRefresh: () => void })
           </a>
         </div>
       </div>
+    </div>
+
+    {/* Danger zone */}
+    <div className="bg-white rounded-2xl border-2 border-red-100 p-5">
+      <h3 className="font-semibold text-red-600">Danger zone</h3>
+      <p className="text-sm text-gray-500 mt-1 mb-4">
+        Deleting this organization removes its departments and team memberships. Individual staff accounts and past bookings are kept.
+      </p>
+      <button onClick={deleteOrg} disabled={deleting}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors disabled:opacity-60">
+        {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+        {deleting ? "Deleting…" : "Delete organization"}
+      </button>
+    </div>
     </div>
   );
 }
