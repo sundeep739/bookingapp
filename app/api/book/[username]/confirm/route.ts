@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createGoogleCalendarEvent } from "@/lib/google-calendar";
-import { getFreshGoogleAccessToken } from "@/lib/google-token";
-import { sendBookingConfirmationToGuest, sendBookingNotificationToHost } from "@/lib/email";
+import { finalizeBooking } from "@/lib/booking-finalize";
+import { stripe } from "@/lib/stripe";
 import { randomUUID } from "crypto";
+
+const PLATFORM_FEE_PERCENT = 0; // set >0 to take a platform cut of booking payments
 
 export async function POST(
   req: NextRequest,
@@ -27,8 +28,11 @@ export async function POST(
 
   const startTime = new Date(start);
   if (isNaN(startTime.getTime())) return NextResponse.json({ error: "Invalid start time" }, { status: 400 });
-  const endTime   = new Date(startTime.getTime() + eventType.duration * 60 * 1000);
+  const endTime = new Date(startTime.getTime() + eventType.duration * 60 * 1000);
   const cancelToken = randomUUID();
+
+  const requiresPayment =
+    eventType.price > 0 && host.stripeChargesEnabled && host.stripeConnectId && stripe;
 
   const booking = await prisma.booking.create({
     data: {
@@ -42,52 +46,43 @@ export async function POST(
       timezone:     timezone ?? "UTC",
       notes:        notes ?? null,
       answers:      answers && Object.keys(answers).length ? answers : undefined,
-      status:       "CONFIRMED",
+      status:       requiresPayment ? "PENDING" : "CONFIRMED",
+      paymentStatus: requiresPayment ? "PENDING" : "NONE",
       cancelToken,
     },
   });
 
-  // ── Google Calendar event + auto Google Meet link ────────────────────────
-  let meetLink: string | null = null;
-  const accessToken = await getFreshGoogleAccessToken(host.id);
-  if (accessToken) {
-    try {
-      const result = await createGoogleCalendarEvent(accessToken, {
-        summary:      `${eventType.title} with ${name}`,
-        description:  notes ?? undefined,
-        startTime,
-        endTime,
-        attendeeEmail: email,
-        location:      eventType.location,
-        withMeet:      !eventType.location || /meet|google/i.test(eventType.location),
-      });
-      meetLink = result.meetLink;
-      if (result.eventId || meetLink) {
-        await prisma.booking.update({
-          where: { id: booking.id },
-          data: { googleEventId: result.eventId, ...(meetLink ? { meetingLink: meetLink } : {}) },
-        });
-      }
-    } catch (e) {
-      console.error("Calendar event creation failed:", e);
-    }
+  // ── Paid booking → Stripe Checkout (destination charge to the host) ───────
+  if (requiresPayment) {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+    const amount = Math.round(eventType.price * 100);
+    const fee = PLATFORM_FEE_PERCENT > 0 ? Math.round(amount * (PLATFORM_FEE_PERCENT / 100)) : undefined;
+
+    const checkout = await stripe!.checkout.sessions.create({
+      mode: "payment",
+      customer_email: email,
+      line_items: [{
+        quantity: 1,
+        price_data: {
+          currency: (eventType.currency || "usd").toLowerCase(),
+          unit_amount: amount,
+          product_data: { name: `${eventType.title} with ${host.name ?? username}` },
+        },
+      }],
+      payment_intent_data: {
+        ...(fee ? { application_fee_amount: fee } : {}),
+        transfer_data: { destination: host.stripeConnectId! },
+      },
+      success_url: `${appUrl}/booking/success?id=${booking.id}`,
+      cancel_url: `${appUrl}/${username}?cancelled=1`,
+      metadata: { bookingId: booking.id, type: "booking_payment" },
+    });
+
+    await prisma.booking.update({ where: { id: booking.id }, data: { stripePaymentId: checkout.id } });
+    return NextResponse.json({ requiresPayment: true, url: checkout.url });
   }
 
-  const tz = timezone ?? "UTC";
-  sendBookingConfirmationToGuest({
-    inviteeName: name, inviteeEmail: email,
-    hostName: host.name ?? username,
-    eventTitle: eventType.title,
-    startTime, endTime, timezone: tz, cancelToken,
-    meetingLink: meetLink,
-  }).catch(() => {});
-
-  sendBookingNotificationToHost({
-    hostEmail: host.email!, hostName: host.name ?? username,
-    inviteeName: name, inviteeEmail: email,
-    eventTitle: eventType.title,
-    startTime, endTime, timezone: tz, notes,
-  }).catch(() => {});
-
+  // ── Free booking → finalize immediately ──────────────────────────────────
+  await finalizeBooking(booking.id);
   return NextResponse.json({ success: true, bookingId: booking.id, cancelToken });
 }

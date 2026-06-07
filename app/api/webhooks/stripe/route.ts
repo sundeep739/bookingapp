@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { stripe, planFromPriceId } from "@/lib/stripe";
+import { finalizeBooking } from "@/lib/booking-finalize";
 
 export async function POST(req: NextRequest) {
   if (!stripe) return NextResponse.json({ error: "Stripe not configured" }, { status: 503 });
@@ -40,10 +41,33 @@ export async function POST(req: NextRequest) {
     switch (event.type) {
       case "checkout.session.completed": {
         const cs = event.data.object as any;
+        // Subscription checkout
         if (cs.subscription) {
           const sub = await stripe.subscriptions.retrieve(cs.subscription as string);
           await setPlanFromSubscription(sub);
         }
+        // Booking payment checkout
+        if (cs.metadata?.type === "booking_payment" && cs.metadata?.bookingId) {
+          const bookingId = cs.metadata.bookingId as string;
+          await prisma.booking.update({
+            where: { id: bookingId },
+            data: {
+              status: "CONFIRMED",
+              paymentStatus: "PAID",
+              amountPaid: cs.amount_total ? cs.amount_total / 100 : null,
+              stripePaymentId: (cs.payment_intent as string) ?? cs.id,
+            },
+          });
+          await finalizeBooking(bookingId);
+        }
+        break;
+      }
+      case "account.updated": {
+        const acct = event.data.object as any;
+        await prisma.user.updateMany({
+          where: { stripeConnectId: acct.id },
+          data: { stripeChargesEnabled: !!acct.charges_enabled },
+        });
         break;
       }
       case "customer.subscription.created":

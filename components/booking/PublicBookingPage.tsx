@@ -126,6 +126,10 @@ export default function PublicBookingPage({ username }: { username: string }) {
         }),
       });
       const data = await res.json();
+      if (data.requiresPayment && data.url) {
+        window.location.href = data.url; // redirect to Stripe Checkout
+        return;
+      }
       if (data.success) {
         setBookingId(data.bookingId);
         setStep("confirmed");
@@ -539,7 +543,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
                   className="w-full py-3.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity mt-2 flex items-center justify-center gap-2 disabled:opacity-70"
                   style={{ backgroundColor: selectedEvent.color }}
                 >
-                  {submitting ? <><Loader2 size={16} className="animate-spin" /> Confirming...</> : "Confirm Booking"}
+                  {submitting ? <><Loader2 size={16} className="animate-spin" /> {selectedEvent.price > 0 ? "Redirecting to payment..." : "Confirming..."}</> : selectedEvent.price > 0 ? `Confirm & Pay ${selectedEvent.currency || "$"}${selectedEvent.price}` : "Confirm Booking"}
                 </button>
               </form>
             </div>

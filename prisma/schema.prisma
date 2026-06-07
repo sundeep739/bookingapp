@@ -55,12 +55,16 @@ model User {
   orgMemberships OrgMember[]
   waitlistEntries WaitlistEntry[]
 
-  // Billing
+  // Billing (subscription)
   plan                 String    @default("free")
   planStatus           String?
   stripeCustomerId     String?   @unique
   stripeSubscriptionId String?
   planRenewsAt         DateTime?
+
+  // Payments (Stripe Connect — receiving money from bookings)
+  stripeConnectId      String?   @unique
+  stripeChargesEnabled Boolean   @default(false)
 }
 
 model VerificationToken {
@@ -137,6 +141,9 @@ model Booking {
   cancelReason   String?
   cancelToken    String?       @unique
   googleEventId  String?
+  paymentStatus  String        @default("NONE") // NONE | PENDING | PAID | REFUNDED
+  amountPaid     Float?
+  stripePaymentId String?
   sms24hSentAt   DateTime?
   sms1hSentAt    DateTime?
   createdAt      DateTime      @default(now())

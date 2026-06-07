@@ -321,6 +321,51 @@ function BillingTab({ plan, planStatus, planRenewsAt }: { plan: string; planStat
 
       {error && <p className="text-sm text-red-500">{error}</p>}
       <p className="text-xs text-gray-400">Secure payments by Stripe. Cancel anytime from “Manage billing”.</p>
+
+      <PayoutsCard />
+    </div>
+  );
+}
+
+function PayoutsCard() {
+  const [status, setStatus] = useState<{ connected: boolean; chargesEnabled: boolean; configured: boolean } | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/billing/connect").then((r) => r.json()).then(setStatus).catch(() => {});
+  }, []);
+
+  const connect = async () => {
+    setBusy(true);
+    try {
+      const res = await fetch("/api/billing/connect", { method: "POST" });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <h2 className="text-base font-semibold text-gray-900 mb-1">Accept payments for bookings</h2>
+      <p className="text-sm text-gray-500 mb-4">
+        Connect Stripe to charge clients (or take deposits) when they book a paid service. Money goes straight to your account.
+      </p>
+      {status?.chargesEnabled ? (
+        <div className="flex items-center gap-2 text-sm font-medium text-green-600">
+          <Check size={16} /> Payments enabled — paid events now collect money at booking.
+        </div>
+      ) : status?.connected ? (
+        <button onClick={connect} disabled={busy}
+          className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60" style={{ backgroundColor: "#635bff" }}>
+          {busy ? "Opening…" : "Finish Stripe setup"}
+        </button>
+      ) : (
+        <button onClick={connect} disabled={busy || !status}
+          className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60" style={{ backgroundColor: "#635bff" }}>
+          {busy ? "Opening…" : "Connect with Stripe"}
+        </button>
+      )}
+      <p className="text-xs text-gray-400 mt-3">Set a price on an event type to make it a paid booking.</p>
     </div>
   );
 }
