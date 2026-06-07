@@ -7,7 +7,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
   const booking = await prisma.booking.findUnique({
     where: { cancelToken: token },
     include: {
-      eventType: { select: { title: true } },
+      eventType: { select: { title: true, slug: true, duration: true } },
       host: { select: { name: true, username: true } },
     },
   });
@@ -16,6 +16,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
     id: booking.id,
     inviteeName: booking.inviteeName,
     eventTitle: booking.eventType.title,
+    eventSlug: booking.eventType.slug,
+    duration: booking.eventType.duration,
     startTime: booking.startTime,
     status: booking.status,
     hostName: booking.host.name,

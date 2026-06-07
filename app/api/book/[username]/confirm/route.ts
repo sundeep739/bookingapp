@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { finalizeBooking } from "@/lib/booking-finalize";
 import { stripe } from "@/lib/stripe";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { randomUUID } from "crypto";
 
 const PLATFORM_FEE_PERCENT = 0; // set >0 to take a platform cut of booking payments
@@ -11,6 +12,11 @@ export async function POST(
   { params }: { params: Promise<{ username: string }> }
 ) {
   const { username } = await params;
+
+  if (!rateLimit(`book:${clientIp(req)}`, 8, 60_000)) {
+    return NextResponse.json({ error: "Too many attempts. Please wait a minute and try again." }, { status: 429 });
+  }
+
   const body = await req.json();
   const { eventSlug, start, name, email, phone, notes, timezone, answers } = body;
 

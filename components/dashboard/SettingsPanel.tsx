@@ -1,10 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Save, Copy, ExternalLink, Loader2, Check, AlertCircle } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import ImageUpload from "@/components/shared/ImageUpload";
 
-const tabs = ["Profile", "Booking Page", "Notifications", "Billing"];
+const tabs = ["Profile", "Booking Page", "Notifications", "Billing", "Privacy"];
 
 export default function SettingsPanel() {
   const { data: session } = useSession();
@@ -217,6 +217,50 @@ export default function SettingsPanel() {
 
       {/* Billing Tab */}
       {activeTab === "Billing" && <BillingTab plan={form.plan} planStatus={form.planStatus} planRenewsAt={form.planRenewsAt} />}
+
+      {/* Privacy Tab */}
+      {activeTab === "Privacy" && <PrivacyTab />}
+    </div>
+  );
+}
+
+function PrivacyTab() {
+  const [deleting, setDeleting] = useState(false);
+
+  const exportData = () => { window.location.href = "/api/user/export"; };
+
+  const deleteAccount = async () => {
+    if (!confirm("Permanently delete your account and all your data? This cannot be undone.")) return;
+    if (!confirm("Final confirmation: delete everything?")) return;
+    setDeleting(true);
+    const res = await fetch("/api/user/delete", { method: "POST" });
+    if (res.ok) { await signOut({ callbackUrl: "/" }); }
+    else { setDeleting(false); alert("Could not delete account. Please try again."); }
+  };
+
+  return (
+    <div className="space-y-5">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <h2 className="text-base font-semibold text-gray-900 mb-1">Your data</h2>
+        <p className="text-sm text-gray-500 mb-4">Download a copy of everything BookEasy stores about you (profile, event types, availability, bookings, teams).</p>
+        <button onClick={exportData}
+          className="px-4 py-2.5 rounded-xl text-sm font-semibold border-2 border-gray-200 text-gray-700 hover:bg-gray-50">
+          Export my data (JSON)
+        </button>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border-2 border-red-100 p-6">
+        <h2 className="text-base font-semibold text-red-600 mb-1">Delete account</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Permanently delete your account, booking page, event types, availability, bookings, and any
+          organizations you own. This cannot be undone.
+        </p>
+        <button onClick={deleteAccount} disabled={deleting}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-500 hover:bg-red-600 disabled:opacity-60">
+          {deleting ? <Loader2 size={14} className="animate-spin" /> : null}
+          {deleting ? "Deleting…" : "Delete my account"}
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // POST /api/waitlist — join waitlist for an event type
 export async function POST(req: Request) {
+  if (!rateLimit(`waitlist:${clientIp(req)}`, 5, 60_000)) {
+    return NextResponse.json({ error: "Too many requests. Please try again shortly." }, { status: 429 });
+  }
   const { eventTypeId, hostUsername, name, email, phone, timezone } = await req.json();
 
   if (!eventTypeId || !name || !email) {
