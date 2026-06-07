@@ -54,6 +54,13 @@ model User {
   ownedOrgs      Organization[]  @relation("OrgOwner")
   orgMemberships OrgMember[]
   waitlistEntries WaitlistEntry[]
+
+  // Billing
+  plan                 String    @default("free")
+  planStatus           String?
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?
+  planRenewsAt         DateTime?
 }
 
 model VerificationToken {

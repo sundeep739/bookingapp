@@ -22,6 +22,9 @@ export default function SettingsPanel() {
     bio: "",
     timezone: "UTC",
     image: null as string | null,
+    plan: "free",
+    planStatus: null as string | null,
+    planRenewsAt: null as string | null,
   });
 
   useEffect(() => {
@@ -35,6 +38,9 @@ export default function SettingsPanel() {
           bio: data.bio ?? "",
           timezone: data.timezone ?? "UTC",
           image: data.image ?? null,
+          plan: data.plan ?? "free",
+          planStatus: data.planStatus ?? null,
+          planRenewsAt: data.planRenewsAt ?? null,
         });
       })
       .finally(() => setLoading(false));
@@ -210,27 +216,111 @@ export default function SettingsPanel() {
       )}
 
       {/* Billing Tab */}
-      {activeTab === "Billing" && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
-          <h2 className="text-base font-semibold text-gray-900">Billing & Plan</h2>
-          <div className="p-5 rounded-2xl border-2" style={{ borderColor: "#e53e6d", backgroundColor: "#fff1f5" }}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-base font-bold" style={{ color: "#e53e6d" }}>Free Plan</p>
-                <p className="text-sm text-gray-600">All features included during beta</p>
-              </div>
-              <span className="px-3 py-1.5 rounded-xl text-xs font-bold text-white" style={{ backgroundColor: "#e53e6d" }}>Active</span>
-            </div>
+      {activeTab === "Billing" && <BillingTab plan={form.plan} planStatus={form.planStatus} planRenewsAt={form.planRenewsAt} />}
+    </div>
+  );
+}
+
+const PLANS = [
+  { key: "free", name: "Free", price: "$0", features: ["1 user", "Unlimited bookings", "Google Calendar sync", "Booking page"] },
+  { key: "pro", name: "Pro", price: "$12", features: ["Everything in Free", "SMS reminders", "Analytics", "Waiting list"] },
+  { key: "team", name: "Team", price: "$49", features: ["Up to 10 staff", "Team booking page", "Departments", "Admin dashboard"] },
+  { key: "business", name: "Business", price: "$149", features: ["Unlimited staff", "White-label", "Priority support", "API access"] },
+];
+
+function BillingTab({ plan, planStatus, planRenewsAt }: { plan: string; planStatus: string | null; planRenewsAt: string | null }) {
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState("");
+
+  const upgrade = async (planKey: string) => {
+    setBusy(planKey); setError("");
+    try {
+      const res = await fetch("/api/billing/checkout", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: planKey }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else setError(data.error ?? "Could not start checkout");
+    } finally { setBusy(null); }
+  };
+
+  const manage = async () => {
+    setBusy("portal"); setError("");
+    try {
+      const res = await fetch("/api/billing/portal", { method: "POST" });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else setError(data.error ?? "Could not open billing portal");
+    } finally { setBusy(null); }
+  };
+
+  const currentIdx = PLANS.findIndex((p) => p.key === plan);
+
+  return (
+    <div className="space-y-5">
+      {/* Current plan */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs text-gray-400 uppercase tracking-wide">Current plan</p>
+            <p className="text-2xl font-bold mt-1" style={{ color: "#e53e6d" }}>
+              {PLANS.find((p) => p.key === plan)?.name ?? "Free"}
+            </p>
+            {planRenewsAt && plan !== "free" && (
+              <p className="text-xs text-gray-500 mt-1">
+                {planStatus === "canceled" ? "Ends" : "Renews"} {new Date(planRenewsAt).toLocaleDateString()}
+              </p>
+            )}
           </div>
-          <div className="space-y-2">
-            {["Unlimited bookings", "Google Calendar sync", "Custom booking page", "Analytics dashboard"].map((f) => (
-              <div key={f} className="flex items-center gap-2 text-sm text-gray-700">
-                <span className="text-green-500">✓</span> {f}
-              </div>
-            ))}
-          </div>
+          {plan !== "free" && (
+            <button onClick={manage} disabled={!!busy}
+              className="px-4 py-2 rounded-xl text-sm font-semibold border-2 border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-60">
+              {busy === "portal" ? "Opening…" : "Manage billing"}
+            </button>
+          )}
         </div>
-      )}
+      </div>
+
+      {/* Plans grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {PLANS.map((p, idx) => {
+          const isCurrent = p.key === plan;
+          const isDowngrade = idx < currentIdx;
+          return (
+            <div key={p.key} className={`rounded-2xl border-2 p-5 ${isCurrent ? "" : "border-gray-100"}`}
+              style={isCurrent ? { borderColor: "#e53e6d", backgroundColor: "#fff1f5" } : {}}>
+              <div className="flex items-baseline justify-between">
+                <p className="font-bold text-gray-900">{p.name}</p>
+                <p className="text-lg font-bold text-gray-900">{p.price}<span className="text-xs text-gray-400 font-normal">/mo</span></p>
+              </div>
+              <ul className="mt-3 space-y-1.5 mb-4">
+                {p.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-xs text-gray-600">
+                    <span className="text-green-500 mt-0.5">✓</span> {f}
+                  </li>
+                ))}
+              </ul>
+              {isCurrent ? (
+                <div className="text-center py-2 rounded-xl text-sm font-semibold text-white" style={{ backgroundColor: "#e53e6d" }}>
+                  Current plan
+                </div>
+              ) : p.key === "free" ? (
+                <div className="text-center py-2 rounded-xl text-sm text-gray-400 bg-gray-50">—</div>
+              ) : (
+                <button onClick={() => upgrade(p.key)} disabled={!!busy}
+                  className="w-full py-2 rounded-xl text-sm font-semibold border-2 transition-colors disabled:opacity-60"
+                  style={{ borderColor: "#e53e6d", color: "#e53e6d" }}>
+                  {busy === p.key ? "Redirecting…" : isDowngrade ? "Switch" : "Upgrade"}
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {error && <p className="text-sm text-red-500">{error}</p>}
+      <p className="text-xs text-gray-400">Secure payments by Stripe. Cancel anytime from “Manage billing”.</p>
     </div>
   );
 }
