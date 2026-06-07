@@ -50,6 +50,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ slug: st
       website: data.website,
       phone: data.phone,
       address: data.address,
+      ...(data.logo !== undefined && { logo: data.logo }),
     },
   });
 

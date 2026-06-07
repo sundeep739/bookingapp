@@ -10,7 +10,7 @@ export async function POST(
 ) {
   const { username } = await params;
   const body = await req.json();
-  const { eventSlug, date, time, name, email, phone, notes, timezone } = body;
+  const { eventSlug, date, time, name, email, phone, notes, timezone, answers } = body;
 
   if (!eventSlug || !date || !time || !name || !email) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -49,6 +49,7 @@ export async function POST(
       endTime,
       timezone:     timezone ?? "UTC",
       notes:        notes ?? null,
+      answers:      answers && Object.keys(answers).length ? answers : undefined,
       status:       "CONFIRMED",
       cancelToken,
     },

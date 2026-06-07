@@ -1,6 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Plus, Clock, Link2, Pencil, Trash2, Video, MapPin, Phone, ToggleLeft, ToggleRight, Loader2, X, Save, AlertCircle } from "lucide-react";
+import { Plus, Clock, Link2, Pencil, Trash2, Video, MapPin, Phone, ToggleLeft, ToggleRight, Loader2, X, Save, AlertCircle, HelpCircle, GripVertical } from "lucide-react";
+
+type Question = { id: string; label: string; type: "text" | "textarea" | "select"; required: boolean; options?: string[] };
+let _qid = 0;
+const qid = () => `q${Date.now()}_${_qid++}`;
 
 type EventType = {
   id: string;
@@ -51,6 +55,13 @@ function EventModal({
     location: event?.location ?? "Google Meet",
     price: String(event?.price ?? 0),
   });
+  const [questions, setQuestions] = useState<Question[]>(
+    Array.isArray((event as any)?.questions) ? (event as any).questions : []
+  );
+
+  const addQuestion = () => setQuestions((q) => [...q, { id: qid(), label: "", type: "text", required: false }]);
+  const updateQuestion = (id: string, patch: Partial<Question>) => setQuestions((q) => q.map((x) => x.id === id ? { ...x, ...patch } : x));
+  const removeQuestion = (id: string) => setQuestions((q) => q.filter((x) => x.id !== id));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -60,7 +71,10 @@ function EventModal({
     setSaving(true);
     setError("");
     try {
-      await onSave(form);
+      const cleanQuestions = questions
+        .filter((q) => q.label.trim())
+        .map((q) => ({ ...q, label: q.label.trim(), options: q.type === "select" ? (q.options ?? []).filter(Boolean) : undefined }));
+      await onSave({ ...form, questions: cleanQuestions });
       onClose();
     } catch (err: any) {
       setError(err.message ?? "Something went wrong");
@@ -71,7 +85,7 @@ function EventModal({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[92vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900">{isEdit ? "Edit Event Type" : "New Event Type"}</h2>
           <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 transition-colors"><X size={18} className="text-gray-500" /></button>
@@ -122,6 +136,58 @@ function EventModal({
                 className="w-full border border-gray-200 rounded-xl pl-7 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400" />
             </div>
           </div>
+          {/* Custom booking questions */}
+          <div className="border-t border-gray-100 pt-4">
+            <div className="flex items-center justify-between mb-2">
+              <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
+                <HelpCircle size={14} className="text-gray-400" /> Booking Questions
+              </label>
+              <button type="button" onClick={addQuestion} className="flex items-center gap-1 text-xs font-medium text-pink-600 hover:text-pink-700">
+                <Plus size={13} /> Add question
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 mb-3">Ask invitees for extra info when they book (e.g. "Reason for visit").</p>
+
+            {questions.length === 0 ? (
+              <p className="text-xs text-gray-300 italic">No custom questions. Name and email are always collected.</p>
+            ) : (
+              <div className="space-y-2.5">
+                {questions.map((q) => (
+                  <div key={q.id} className="rounded-xl border border-gray-200 p-3 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <GripVertical size={14} className="text-gray-300 flex-shrink-0" />
+                      <input value={q.label} onChange={(e) => updateQuestion(q.id, { label: e.target.value })}
+                        placeholder="Question label"
+                        className="flex-1 min-w-0 px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-pink-400" />
+                      <button type="button" onClick={() => removeQuestion(q.id)}
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2 pl-6 flex-wrap">
+                      <select value={q.type} onChange={(e) => updateQuestion(q.id, { type: e.target.value as Question["type"] })}
+                        className="px-2 py-1 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-pink-400">
+                        <option value="text">Short text</option>
+                        <option value="textarea">Long text</option>
+                        <option value="select">Dropdown</option>
+                      </select>
+                      <label className="flex items-center gap-1.5 text-xs text-gray-500">
+                        <input type="checkbox" checked={q.required} onChange={(e) => updateQuestion(q.id, { required: e.target.checked })}
+                          className="rounded accent-pink-500" />
+                        Required
+                      </label>
+                      {q.type === "select" && (
+                        <input value={(q.options ?? []).join(", ")} onChange={(e) => updateQuestion(q.id, { options: e.target.value.split(",").map((s) => s.trim()) })}
+                          placeholder="Option 1, Option 2, Option 3"
+                          className="flex-1 min-w-[140px] px-2 py-1 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-pink-400" />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {error && <p className="text-xs text-red-500 flex items-center gap-1"><AlertCircle size={12} />{error}</p>}
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} className="flex-1 py-3 rounded-xl text-sm font-semibold border-2 border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>

@@ -1,7 +1,6 @@
 "use client";
 import { Bell } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 
 interface TopBarProps {
   title: string;
@@ -24,7 +23,8 @@ export default function TopBar({ title, subtitle }: TopBarProps) {
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-pink-500 rounded-full" />
         </button>
         {session?.user?.image ? (
-          <Image src={session.user.image} alt="Profile" width={36} height={36} className="rounded-full" />
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={session.user.image} alt="Profile" width={36} height={36} className="rounded-full w-9 h-9 object-cover" />
         ) : (
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
             {session?.user?.name?.[0] ?? "U"}

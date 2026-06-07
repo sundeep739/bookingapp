@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
   const userId = (session.user as any).id;
   const body = await req.json();
-  const { title, description, duration, color, location, price, currency, bufferBefore, bufferAfter, minNotice, maxDaysAhead } = body;
+  const { title, description, duration, color, location, price, currency, bufferBefore, bufferAfter, minNotice, maxDaysAhead, questions } = body;
 
   if (!title || !duration) return NextResponse.json({ error: "Title and duration required" }, { status: 400 });
 
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
       bufferAfter: parseInt(bufferAfter ?? 0),
       minNotice: parseInt(minNotice ?? 60),
       maxDaysAhead: parseInt(maxDaysAhead ?? 60),
+      questions: Array.isArray(questions) && questions.length ? questions : undefined,
     },
   });
 

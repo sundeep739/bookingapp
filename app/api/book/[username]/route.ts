@@ -28,6 +28,7 @@ export async function GET(
           location: true,
           price: true,
           currency: true,
+          questions: true,
         },
       },
     },

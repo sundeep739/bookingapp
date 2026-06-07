@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -9,7 +10,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const userId = (session.user as any).id;
   const { id } = await params;
   const body = await req.json();
-  const { title, description, duration, color, location, price, currency, isActive, bufferBefore, bufferAfter, minNotice, maxDaysAhead } = body;
+  const { title, description, duration, color, location, price, currency, isActive, bufferBefore, bufferAfter, minNotice, maxDaysAhead, questions } = body;
 
   // Verify ownership
   const existing = await prisma.eventType.findFirst({ where: { id, userId } });
@@ -30,6 +31,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       ...(bufferAfter !== undefined && { bufferAfter: parseInt(bufferAfter) }),
       ...(minNotice !== undefined && { minNotice: parseInt(minNotice) }),
       ...(maxDaysAhead !== undefined && { maxDaysAhead: parseInt(maxDaysAhead) }),
+      ...(questions !== undefined && { questions: Array.isArray(questions) && questions.length ? questions : Prisma.JsonNull }),
     },
   });
 

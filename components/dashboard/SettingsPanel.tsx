@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Save, Copy, ExternalLink, Loader2, Check, AlertCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
+import ImageUpload from "@/components/shared/ImageUpload";
 
 const tabs = ["Profile", "Booking Page", "Notifications", "Billing"];
 
@@ -21,6 +21,7 @@ export default function SettingsPanel() {
     username: "",
     bio: "",
     timezone: "UTC",
+    image: null as string | null,
   });
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function SettingsPanel() {
           username: data.username ?? "",
           bio: data.bio ?? "",
           timezone: data.timezone ?? "UTC",
+          image: data.image ?? null,
         });
       })
       .finally(() => setLoading(false));
@@ -45,7 +47,7 @@ export default function SettingsPanel() {
       const res = await fetch("/api/user/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.name, username: form.username, bio: form.bio, timezone: form.timezone }),
+        body: JSON.stringify({ name: form.name, username: form.username, bio: form.bio, timezone: form.timezone, image: form.image }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? "Save failed"); return; }
@@ -93,18 +95,16 @@ export default function SettingsPanel() {
             <h2 className="text-base font-semibold text-gray-900 mb-5">Profile Information</h2>
 
             {/* Avatar */}
-            <div className="flex items-center gap-5 mb-6">
-              {session?.user?.image ? (
-                <Image src={session.user.image} alt="Profile" width={64} height={64} className="rounded-2xl object-cover" />
-              ) : (
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-xl font-bold">
-                  {form.name[0]?.toUpperCase() ?? "U"}
-                </div>
-              )}
-              <div>
-                <p className="text-sm font-medium text-gray-700">Profile Photo</p>
-                <p className="text-xs text-gray-400 mt-0.5">Synced from Google account</p>
-              </div>
+            <div className="mb-6">
+              <ImageUpload
+                value={form.image ?? session?.user?.image ?? null}
+                onChange={(img) => setForm((p) => ({ ...p, image: img }))}
+                fallback={
+                  <div className="w-full h-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-xl font-bold">
+                    {form.name[0]?.toUpperCase() ?? "U"}
+                  </div>
+                }
+              />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

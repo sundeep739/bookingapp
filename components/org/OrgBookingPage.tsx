@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import {
   Building2, MapPin, Phone, Globe, Users, Clock,
   ChevronRight, Search, Filter, Star
@@ -74,7 +73,8 @@ export default function OrgBookingPage({ slug }: Props) {
         <div className="max-w-5xl mx-auto px-4 py-8">
           <div className="flex items-start gap-6">
             {org.logo ? (
-              <Image src={org.logo} alt={org.name} width={80} height={80} className="rounded-2xl object-cover flex-shrink-0" />
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={org.logo} alt={org.name} className="rounded-2xl object-cover flex-shrink-0 w-20 h-20" />
             ) : (
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
                 <Building2 className="text-white" size={36} />
@@ -182,12 +182,11 @@ function StaffCard({ member, orgSlug, onBook }: { member: any; orgSlug: string; 
     <div className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md transition-shadow group">
       <div className="flex items-start gap-4">
         {member.user.image ? (
-          <Image
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             src={member.user.image}
             alt={member.user.name || ""}
-            width={56}
-            height={56}
-            className="rounded-xl flex-shrink-0 object-cover"
+            className="rounded-xl flex-shrink-0 object-cover w-14 h-14"
           />
         ) : (
           <div className="w-14 h-14 rounded-xl flex-shrink-0 flex items-center justify-center text-white font-bold text-xl"

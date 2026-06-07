@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import ImageUpload from "@/components/shared/ImageUpload";
 import {
   Plus, Building2, Users, Trash2, Mail, Settings, ExternalLink,
   ChevronDown, ChevronRight, CheckCircle, Loader2, Edit2, X,
@@ -321,7 +321,8 @@ function MembersTab({ org, onRefresh }: { org: any; onRefresh: () => void }) {
             return (
               <div key={member.id} className="flex items-center gap-3 py-3">
                 {member.user.image ? (
-                  <Image src={member.user.image} alt="" width={40} height={40} className="rounded-xl flex-shrink-0" />
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={member.user.image} alt="" className="rounded-xl flex-shrink-0 w-10 h-10 object-cover" />
                 ) : (
                   <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white font-semibold text-sm"
                     style={{ background: "linear-gradient(135deg,#e53e6d,#f97316)" }}>
@@ -529,6 +530,7 @@ function OrgSettingsTab({ org, onRefresh }: { org: any; onRefresh: () => void })
     phone: org.phone || "",
     address: org.address || "",
     timezone: org.timezone || "UTC",
+    logo: org.logo || null,
   });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -549,6 +551,19 @@ function OrgSettingsTab({ org, onRefresh }: { org: any; onRefresh: () => void })
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
       <h3 className="font-semibold text-gray-900">Organization Settings</h3>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Logo</label>
+        <ImageUpload
+          value={form.logo}
+          onChange={(img) => setForm({ ...form, logo: img })}
+          fallback={
+            <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+              <Building2 className="text-white" size={28} />
+            </div>
+          }
+        />
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="sm:col-span-2">

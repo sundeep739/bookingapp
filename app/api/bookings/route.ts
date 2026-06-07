@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
       hostId: userId,
       ...(status && status !== "All" ? { status: status as any } : {}),
     },
-    include: { eventType: { select: { title: true, color: true, duration: true } } },
+    include: { eventType: { select: { title: true, color: true, duration: true, slug: true } } },
     orderBy: { startTime: "desc" },
     take: limit,
   });

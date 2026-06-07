@@ -18,7 +18,7 @@ export async function PUT(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, username, bio, timezone } = await req.json();
+  const { name, username, bio, timezone, image } = await req.json();
   const userId = (session.user as any).id;
 
   // Check username uniqueness (excluding current user)
@@ -31,7 +31,7 @@ export async function PUT(req: NextRequest) {
 
   const user = await prisma.user.update({
     where: { id: userId },
-    data: { name, username, bio, timezone },
+    data: { name, username, bio, timezone, ...(image !== undefined && { image }) },
     select: { id: true, name: true, email: true, username: true, bio: true, timezone: true, image: true },
   });
 

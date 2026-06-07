@@ -5,6 +5,7 @@ import { CalendarCheck, Clock, Video, ChevronLeft, ChevronRight, Check, Loader2,
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const DAYS_SHORT = ["Su","Mo","Tu","We","Th","Fr","Sa"];
 
+type Question = { id: string; label: string; type: "text" | "textarea" | "select"; required: boolean; options?: string[] };
 type EventType = {
   id: string;
   title: string;
@@ -15,6 +16,7 @@ type EventType = {
   location: string | null;
   price: number;
   currency: string;
+  questions?: Question[] | null;
 };
 
 type HostProfile = {
@@ -46,6 +48,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
   const [slotsLoading, setSlotsLoading]   = useState(false);
   const [selectedTime, setSelectedTime]   = useState<string | null>(null);
   const [form, setForm]                   = useState({ name: "", email: "", phone: "", notes: "" });
+  const [answers, setAnswers]             = useState<Record<string, string>>({});
   const [submitting, setSubmitting]       = useState(false);
   const [bookingId, setBookingId]         = useState<string | null>(null);
   const [waitlistForm, setWaitlistForm]   = useState({ name: "", email: "", phone: "" });
@@ -114,6 +117,11 @@ export default function PublicBookingPage({ username }: { username: string }) {
           email: form.email,
           phone: form.phone || null,
           notes: form.notes,
+          answers: Object.fromEntries(
+            (selectedEvent.questions ?? [])
+              .filter((q) => answers[q.id]?.trim())
+              .map((q) => [q.label, answers[q.id]])
+          ),
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         }),
       });
@@ -479,6 +487,42 @@ export default function PublicBookingPage({ username }: { username: string }) {
                     className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400"
                   />
                 </div>
+                {/* Custom questions */}
+                {selectedEvent.questions?.map((q) => (
+                  <div key={q.id}>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      {q.label} {q.required && <span className="text-pink-500">*</span>}
+                    </label>
+                    {q.type === "textarea" ? (
+                      <textarea
+                        required={q.required}
+                        value={answers[q.id] ?? ""}
+                        onChange={(e) => setAnswers((p) => ({ ...p, [q.id]: e.target.value }))}
+                        rows={3}
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400 resize-none"
+                      />
+                    ) : q.type === "select" ? (
+                      <select
+                        required={q.required}
+                        value={answers[q.id] ?? ""}
+                        onChange={(e) => setAnswers((p) => ({ ...p, [q.id]: e.target.value }))}
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400"
+                      >
+                        <option value="">Select an option…</option>
+                        {(q.options ?? []).map((o) => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        required={q.required}
+                        value={answers[q.id] ?? ""}
+                        onChange={(e) => setAnswers((p) => ({ ...p, [q.id]: e.target.value }))}
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400"
+                      />
+                    )}
+                  </div>
+                ))}
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">What's this meeting about? (optional)</label>
                   <textarea

@@ -80,6 +80,37 @@ export async function sendBookingNotificationToHost({
   });
 }
 
+export async function sendRescheduleEmail({
+  inviteeName, inviteeEmail, hostName, eventTitle, oldStart, newStart, timezone, cancelToken,
+}: {
+  inviteeName: string; inviteeEmail: string; hostName: string; eventTitle: string;
+  oldStart: Date; newStart: Date; timezone: string; cancelToken?: string | null;
+}) {
+  if (!resend) return;
+  const oldStr = formatDateTime(oldStart, timezone);
+  const newStr = formatDateTime(newStart, timezone);
+  const cancelUrl = cancelToken ? `${APP_URL}/cancel/${cancelToken}` : null;
+  await resend.emails.send({
+    from: FROM,
+    to: inviteeEmail,
+    subject: `🔄 Rescheduled: ${eventTitle} with ${hostName}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
+        <h2 style="color:#1a1f36;margin-bottom:4px">Your booking has been rescheduled</h2>
+        <p style="color:#6b7280;margin-top:0">Hi ${inviteeName}, the time for your meeting has changed.</p>
+        <div style="background:#f4f6fb;border-radius:12px;padding:20px;margin:20px 0">
+          <p style="margin:0 0 8px;color:#374151"><strong>📅 Event:</strong> ${eventTitle}</p>
+          <p style="margin:0 0 8px;color:#9ca3af;text-decoration:line-through"><strong>Was:</strong> ${oldStr}</p>
+          <p style="margin:0;color:#111827"><strong>🕐 Now:</strong> ${newStr}</p>
+        </div>
+        ${cancelUrl ? `<p style="color:#6b7280;font-size:14px">Can't make the new time? <a href="${cancelUrl}" style="color:#e53e6d">Cancel here</a>.</p>` : ""}
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0"/>
+        <p style="color:#9ca3af;font-size:12px">Powered by BookEasy</p>
+      </div>
+    `,
+  });
+}
+
 export async function sendCancellationEmail({
   inviteeName, inviteeEmail, hostName, eventTitle, startTime, timezone,
 }: {

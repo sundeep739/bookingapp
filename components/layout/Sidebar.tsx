@@ -8,7 +8,6 @@ import {
   Settings, LogOut, CalendarCheck, Sliders, ChevronRight,
   ExternalLink, Menu, X,
 } from "lucide-react";
-import Image from "next/image";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard",    href: "/dashboard" },
@@ -70,7 +69,8 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         <div className="border-t border-white/10 pt-4">
           <div className="flex items-center gap-3 px-3 py-2 rounded-xl">
             {session?.user?.image ? (
-              <Image src={session.user.image} alt="Profile" width={36} height={36} className="rounded-full flex-shrink-0" />
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={session.user.image} alt="Profile" width={36} height={36} className="rounded-full flex-shrink-0 w-9 h-9 object-cover" />
             ) : (
               <div className="w-9 h-9 rounded-full bg-pink-500 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
                 {session?.user?.name?.[0] ?? "U"}

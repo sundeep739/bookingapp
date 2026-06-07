@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
-import { Copy, Check, ExternalLink, Plus, Bell } from "lucide-react";
+import { Copy, Check, ExternalLink, Plus } from "lucide-react";
 import Link from "next/link";
 
 export default function DashboardHeader() {
@@ -39,7 +38,8 @@ export default function DashboardHeader() {
         <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-5">
           <div className="flex items-center gap-4 pl-10 lg:pl-0">
             {session?.user?.image ? (
-              <Image src={session.user.image} alt="" width={52} height={52} className="rounded-2xl ring-2 ring-white/20 flex-shrink-0" />
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={session.user.image} alt="" width={52} height={52} className="rounded-2xl ring-2 ring-white/20 flex-shrink-0 w-[52px] h-[52px] object-cover" />
             ) : (
               <div className="w-[52px] h-[52px] rounded-2xl bg-pink-500 flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
                 {firstName[0]}
