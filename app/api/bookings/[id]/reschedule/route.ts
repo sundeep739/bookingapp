@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendRescheduleEmail } from "@/lib/email";
+import { getFreshGoogleAccessToken } from "@/lib/google-token";
+import { updateGoogleCalendarEvent } from "@/lib/google-calendar";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -38,6 +40,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     data: { startTime, endTime, status: "CONFIRMED" },
     include: { eventType: { select: { title: true, color: true, duration: true } } },
   });
+
+  // Move the Google Calendar event to the new time
+  if (booking.googleEventId) {
+    const token = await getFreshGoogleAccessToken(userId);
+    if (token) {
+      updateGoogleCalendarEvent(token, booking.googleEventId, { startTime, endTime }).catch((e) =>
+        console.error("Calendar reschedule failed:", e)
+      );
+    }
+  }
 
   sendRescheduleEmail({
     inviteeName: booking.inviteeName,

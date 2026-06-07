@@ -14,11 +14,11 @@ function formatDateTime(date: Date, timezone: string) {
 
 export async function sendBookingConfirmationToGuest({
   inviteeName, inviteeEmail, hostName, eventTitle, startTime, endTime,
-  timezone, cancelToken,
+  timezone, cancelToken, meetingLink,
 }: {
   inviteeName: string; inviteeEmail: string; hostName: string;
   eventTitle: string; startTime: Date; endTime: Date;
-  timezone: string; cancelToken: string;
+  timezone: string; cancelToken: string; meetingLink?: string | null;
 }) {
   if (!resend) return; // silently skip if not configured
 
@@ -36,7 +36,8 @@ export async function sendBookingConfirmationToGuest({
         <div style="background:#f4f6fb;border-radius:12px;padding:20px;margin:20px 0">
           <p style="margin:0 0 8px;color:#374151"><strong>📅 Event:</strong> ${eventTitle}</p>
           <p style="margin:0 0 8px;color:#374151"><strong>🕐 When:</strong> ${dateStr}</p>
-          <p style="margin:0;color:#374151"><strong>👤 Host:</strong> ${hostName}</p>
+          <p style="margin:0 ${meetingLink ? "0 8px" : ""};color:#374151"><strong>👤 Host:</strong> ${hostName}</p>
+          ${meetingLink ? `<p style="margin:0;color:#374151"><strong>🎥 Join:</strong> <a href="${meetingLink}" style="color:#e53e6d">${meetingLink}</a></p>` : ""}
         </div>
         <p style="color:#6b7280;font-size:14px">Need to cancel? <a href="${cancelUrl}" style="color:#e53e6d">Click here to cancel your booking</a>.</p>
         <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0"/>

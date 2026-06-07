@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createGoogleCalendarEvent } from "@/lib/google-calendar";
+import { getFreshGoogleAccessToken } from "@/lib/google-token";
 import { sendBookingConfirmationToGuest, sendBookingNotificationToHost } from "@/lib/email";
 import { randomUUID } from "crypto";
 
@@ -16,10 +17,7 @@ export async function POST(
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  const host = await prisma.user.findUnique({
-    where: { username },
-    include: { accounts: { where: { provider: "google" }, select: { access_token: true } } },
-  });
+  const host = await prisma.user.findUnique({ where: { username } });
   if (!host) return NextResponse.json({ error: "Host not found" }, { status: 404 });
 
   const eventType = await prisma.eventType.findFirst({
@@ -55,15 +53,30 @@ export async function POST(
     },
   });
 
-  const accessToken = host.accounts[0]?.access_token;
+  // ── Google Calendar event + auto Google Meet link ────────────────────────
+  let meetLink: string | null = null;
+  const accessToken = await getFreshGoogleAccessToken(host.id);
   if (accessToken) {
-    createGoogleCalendarEvent(accessToken, {
-      summary:      `${eventType.title} with ${name}`,
-      description:  notes ?? undefined,
-      startTime,
-      endTime,
-      attendeeEmail: email,
-    }).catch(() => {});
+    try {
+      const result = await createGoogleCalendarEvent(accessToken, {
+        summary:      `${eventType.title} with ${name}`,
+        description:  notes ?? undefined,
+        startTime,
+        endTime,
+        attendeeEmail: email,
+        location:      eventType.location,
+        withMeet:      !eventType.location || /meet|google/i.test(eventType.location),
+      });
+      meetLink = result.meetLink;
+      if (result.eventId || meetLink) {
+        await prisma.booking.update({
+          where: { id: booking.id },
+          data: { googleEventId: result.eventId, ...(meetLink ? { meetingLink: meetLink } : {}) },
+        });
+      }
+    } catch (e) {
+      console.error("Calendar event creation failed:", e);
+    }
   }
 
   const tz = timezone ?? "UTC";
@@ -72,6 +85,7 @@ export async function POST(
     hostName: host.name ?? username,
     eventTitle: eventType.title,
     startTime, endTime, timezone: tz, cancelToken,
+    meetingLink: meetLink,
   }).catch(() => {});
 
   sendBookingNotificationToHost({

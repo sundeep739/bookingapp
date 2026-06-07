@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { sendCancellationEmail } from "@/lib/email";
 import { sendWaitlistNotification } from "@/lib/sms";
+import { getFreshGoogleAccessToken } from "@/lib/google-token";
+import { deleteGoogleCalendarEvent } from "@/lib/google-calendar";
 import { Resend } from "resend";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
@@ -11,8 +13,9 @@ type CancelBooking = {
   inviteeEmail: string;
   startTime: Date;
   timezone: string;
+  googleEventId?: string | null;
   eventType: { title: string };
-  host: { name: string | null; username: string | null };
+  host: { id?: string; name: string | null; username: string | null };
 };
 
 /**
@@ -20,6 +23,16 @@ type CancelBooking = {
  * waitlist (email + SMS). Call this AFTER the booking status is set to CANCELLED.
  */
 export async function notifyCancellation(booking: CancelBooking) {
+  // 0. Remove the event from the host's Google Calendar
+  if (booking.googleEventId && booking.host.id) {
+    const token = await getFreshGoogleAccessToken(booking.host.id);
+    if (token) {
+      deleteGoogleCalendarEvent(token, booking.googleEventId).catch((e) =>
+        console.error("Calendar delete failed:", e)
+      );
+    }
+  }
+
   // 1. Cancellation email to the guest
   sendCancellationEmail({
     inviteeName: booking.inviteeName,

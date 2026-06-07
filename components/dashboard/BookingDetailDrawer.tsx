@@ -176,7 +176,11 @@ export default function BookingDetailDrawer({
                 {start.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} – {end.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
               </span>
             </Row>
-            {booking.location ? (
+            {booking.meetingLink ? (
+              <Row icon={Video} label="Meeting link">
+                <a href={booking.meetingLink} target="_blank" rel="noreferrer" className="text-pink-600 hover:underline break-all">{booking.meetingLink}</a>
+              </Row>
+            ) : booking.location ? (
               <Row icon={MapPin} label="Location"><span className="text-gray-900">{booking.location}</span></Row>
             ) : (
               <Row icon={Video} label="Location"><span className="text-gray-900">Google Meet</span></Row>

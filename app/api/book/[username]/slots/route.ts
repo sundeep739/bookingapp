@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getFreshGoogleAccessToken } from "@/lib/google-token";
+import { getCalendarBusyTimes } from "@/lib/google-calendar";
 
 function toMinutes(time: string): number {
   const [h, m] = time.split(":").map(Number);
@@ -93,6 +95,25 @@ export async function GET(
     start: b.startTime.getHours() * 60 + b.startTime.getMinutes() - bufferBefore,
     end:   b.endTime.getHours()   * 60 + b.endTime.getMinutes()   + bufferAfter,
   }));
+
+  // Block times the host is busy in their connected Google Calendar (two-way sync)
+  try {
+    const token = await getFreshGoogleAccessToken(user.id);
+    if (token) {
+      const busy = await getCalendarBusyTimes(token, dayStart, dayEnd);
+      for (const b of busy) {
+        if (!b.start || !b.end) continue;
+        const bs = new Date(b.start);
+        const be = new Date(b.end);
+        bookedRanges.push({
+          start: bs.getHours() * 60 + bs.getMinutes() - bufferBefore,
+          end:   be.getHours() * 60 + be.getMinutes() + bufferAfter,
+        });
+      }
+    }
+  } catch (e) {
+    console.error("Free/busy lookup failed:", e);
+  }
 
   // Min notice: earliest bookable time = now + minNotice
   const earliestMinutes = requestedDate.toDateString() === now.toDateString()

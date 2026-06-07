@@ -129,6 +129,7 @@ model Booking {
   answers        Json?
   cancelReason   String?
   cancelToken    String?       @unique
+  googleEventId  String?
   sms24hSentAt   DateTime?
   sms1hSentAt    DateTime?
   createdAt      DateTime      @default(now())
