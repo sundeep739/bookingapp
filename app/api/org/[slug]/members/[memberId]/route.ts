@@ -15,6 +15,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ slug: st
 
   const { role, title, deptId, isActive } = await req.json();
 
+  // IDOR guard: verify the target member belongs to the same org as the requester
+  const target = await prisma.orgMember.findFirst({
+    where: { id: memberId, orgId: requester.orgId },
+  });
+  if (!target) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (target.role === "OWNER") return NextResponse.json({ error: "Cannot modify owner" }, { status: 400 });
+
   const updated = await prisma.orgMember.update({
     where: { id: memberId },
     data: {
@@ -43,7 +50,10 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ slug
   });
   if (!requester) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const target = await prisma.orgMember.findUnique({ where: { id: memberId } });
+  // IDOR guard: verify the target belongs to the same org
+  const target = await prisma.orgMember.findFirst({
+    where: { id: memberId, orgId: requester.orgId },
+  });
   if (!target) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (target.role === "OWNER") return NextResponse.json({ error: "Cannot remove owner" }, { status: 400 });
 

@@ -46,13 +46,14 @@ export interface IcsEventParams {
   meetLink?: string | null;
   cancelToken?: string;
   method?: "REQUEST" | "CANCEL";  // REQUEST = invite, CANCEL = cancellation
+  sequence?: number;              // Increment for updates (reschedule = 1), 0 for new bookings
 }
 
 export function generateIcs(params: IcsEventParams): string {
   const {
     uid, summary, description, location, startTime, endTime,
     organizerName, organizerEmail, attendeeEmail, attendeeName,
-    meetLink, cancelToken, method = "REQUEST",
+    meetLink, cancelToken, method = "REQUEST", sequence = 0,
   } = params;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bookeasy.app";
@@ -81,7 +82,7 @@ export function generateIcs(params: IcsEventParams): string {
     ...(location  ? [fold(`LOCATION:${esc(location)}`)]  : []),
     ...(meetLink  ? [fold(`URL:${meetLink}`)]             : []),
     `STATUS:${method === "CANCEL" ? "CANCELLED" : "CONFIRMED"}`,
-    "SEQUENCE:0",
+    `SEQUENCE:${sequence}`,
     "END:VEVENT",
     "END:VCALENDAR",
   ];

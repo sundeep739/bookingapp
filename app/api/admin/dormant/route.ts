@@ -58,9 +58,20 @@ export async function GET(req: NextRequest) {
     take: 200,
   });
 
-  // Further filter: no upcoming future bookings
+  // Further filter: exclude users who have upcoming confirmed/pending bookings
   const now = new Date();
-  const dormant = users.filter((u) => true); // already filtered by query above
+  const userIds = users.map((u) => u.id);
+  const usersWithFutureBookings = await prisma.booking.findMany({
+    where: {
+      hostId: { in: userIds },
+      startTime: { gte: now },
+      status: { in: ["CONFIRMED", "PENDING"] },
+    },
+    select: { hostId: true },
+    distinct: ["hostId"],
+  });
+  const activeHostIds = new Set(usersWithFutureBookings.map((b) => b.hostId));
+  const dormant = users.filter((u) => !activeHostIds.has(u.id));
 
   return NextResponse.json({
     count:         dormant.length,
@@ -170,7 +181,7 @@ export async function DELETE(req: NextRequest) {
     where: {
       createdAt: { lte: cutoff },
       suspended: false,
-      bookings:  { none: { createdAt: { gte: cutoff } } },
+      bookings:  { none: { createdAt: { gte: cutoff }, status: { in: ["CONFIRMED", "PENDING"] } } },
     },
     select: { id: true },
     take: 100, // batch cap — run multiple times if needed

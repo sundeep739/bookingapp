@@ -36,6 +36,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ to
   });
   if (!booking) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
   if (booking.status === "CANCELLED") return NextResponse.json({ error: "Already cancelled" }, { status: 400 });
+  if (booking.status === "COMPLETED") return NextResponse.json({ error: "Completed bookings cannot be cancelled" }, { status: 400 });
 
   await prisma.booking.update({
     where: { cancelToken: token },

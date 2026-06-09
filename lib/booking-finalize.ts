@@ -58,7 +58,7 @@ export async function finalizeBooking(bookingId: string) {
     startTime:    booking.startTime,
     endTime:      booking.endTime,
     timezone:     tz,
-    cancelToken:  booking.cancelToken!,
+    cancelToken:  booking.cancelToken ?? "",
     meetingLink:  meetLink,
     location:     booking.eventType.location,
   }).catch(() => {});

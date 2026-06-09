@@ -155,6 +155,7 @@ export async function sendRescheduleEmail({
     cancelToken:    cancelToken ?? undefined,
     location:       location ?? undefined,
     method:         "REQUEST",
+    sequence:       1, // Increment so calendar clients replace the original event
   }) : null;
 
   await resend.emails.send({

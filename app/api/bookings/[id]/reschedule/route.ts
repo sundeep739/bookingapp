@@ -28,11 +28,32 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (isNaN(startTime.getTime())) return NextResponse.json({ error: "Invalid start time" }, { status: 400 });
   const endTime = new Date(startTime.getTime() + booking.eventType.duration * 60 * 1000);
 
-  const updated = await prisma.booking.update({
-    where: { id },
-    data: { startTime, endTime, status: "CONFIRMED" },
-    include: { eventType: { select: { title: true, color: true, duration: true } } },
-  });
+  // Double-booking guard — same Serializable pattern as booking creation
+  let updated: Awaited<ReturnType<typeof prisma.booking.update>>;
+  try {
+    updated = await prisma.$transaction(async (tx) => {
+      const clash = await tx.booking.findFirst({
+        where: {
+          hostId: userId,
+          id: { not: id }, // exclude the booking being rescheduled
+          status: { in: ["CONFIRMED", "PENDING"] },
+          startTime: { lt: endTime },
+          endTime: { gt: startTime },
+        },
+      });
+      if (clash) throw new Error("SLOT_TAKEN");
+      return tx.booking.update({
+        where: { id },
+        data: { startTime, endTime, status: "CONFIRMED" },
+        include: { eventType: { select: { title: true, color: true, duration: true } } },
+      });
+    }, { isolationLevel: "Serializable" });
+  } catch (e: any) {
+    if (e.message === "SLOT_TAKEN" || e.code === "P2034") {
+      return NextResponse.json({ error: "That slot is no longer available." }, { status: 409 });
+    }
+    throw e;
+  }
 
   // Move the Google Calendar event to the new time
   if (booking.googleEventId) {

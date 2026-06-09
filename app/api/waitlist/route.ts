@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // POST /api/waitlist — join waitlist for an event type
 export async function POST(req: Request) {
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   });
 
   // Confirm email to the person who joined
-  resend.emails.send({
+  resend?.emails.send({
     from: process.env.RESEND_FROM_EMAIL!,
     to: email,
     subject: `You're on the waitlist!`,

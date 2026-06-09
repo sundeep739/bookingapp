@@ -59,10 +59,15 @@ export async function GET(
   ).getDay();
 
   // Date override check
+  // Use Date.UTC so the range is consistent regardless of server timezone.
+  // DateOverride.date is stored as UTC midnight of the calendar date.
   const override = await prisma.dateOverride.findFirst({
     where: {
       userId: user.id,
-      date: { gte: new Date(year, month - 1, day, 0, 0, 0), lt: new Date(year, month - 1, day, 23, 59, 59) },
+      date: {
+        gte: new Date(Date.UTC(year, month - 1, day)),
+        lt:  new Date(Date.UTC(year, month - 1, day + 1)),
+      },
     },
   });
   if (override?.isBlocked) return NextResponse.json({ slots: [] });

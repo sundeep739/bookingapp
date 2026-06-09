@@ -15,6 +15,7 @@ export async function GET(
       image: true,
       bio: true,
       timezone: true,
+      suspended: true,
       eventTypes: {
         where: { isActive: true },
         orderBy: { createdAt: "asc" },
@@ -38,5 +39,11 @@ export async function GET(
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  return NextResponse.json(user);
+  if (user.suspended) {
+    return NextResponse.json({ error: "This booking page is not available." }, { status: 403 });
+  }
+
+  // Don't expose the suspended flag to the public
+  const { suspended: _, ...publicUser } = user;
+  return NextResponse.json(publicUser);
 }

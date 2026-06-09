@@ -20,6 +20,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   });
   if (!booking) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (booking.status === "CANCELLED") return NextResponse.json({ error: "Already cancelled" }, { status: 400 });
+  if (booking.status === "COMPLETED") return NextResponse.json({ error: "Completed bookings cannot be cancelled" }, { status: 400 });
 
   const updated = await prisma.booking.update({
     where: { id },

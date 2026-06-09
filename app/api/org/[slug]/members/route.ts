@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
 import { limitsFor } from "@/lib/plan";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 export async function GET(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -75,16 +75,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
     create: { orgId: member.org.id, email, role: role || "MEMBER", expiresAt },
   });
 
-  // Update title/dept if provided
-  if (title || deptId) {
-    await prisma.orgInvite.update({ where: { id: invite.id }, data: {} });
-  }
+  // Note: title/deptId are not stored on OrgInvite — they are applied when the
+  // invite is accepted and the OrgMember record is created (see /api/invite/[token]).
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   const inviteUrl = `${appUrl}/invite/${invite.token}`;
 
-  // Send invite email (fire and forget)
-  resend.emails.send({
+  // Send invite email (fire and forget — no-op if Resend not configured)
+  resend?.emails.send({
     from: process.env.RESEND_FROM_EMAIL!,
     to: email,
     subject: `You're invited to join ${member.org.name} on BookEasy`,
