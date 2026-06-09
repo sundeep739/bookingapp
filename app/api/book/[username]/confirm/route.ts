@@ -26,6 +26,7 @@ export async function POST(
 
   const host = await prisma.user.findUnique({ where: { username } });
   if (!host) return NextResponse.json({ error: "Host not found" }, { status: 404 });
+  if (host.suspended) return NextResponse.json({ error: "This booking page is not available." }, { status: 403 });
 
   const eventType = await prisma.eventType.findFirst({
     where: { userId: host.id, slug: eventSlug, isActive: true },

@@ -66,6 +66,12 @@ export const authOptions: NextAuthOptions = {
     async session({ session, user }) {
       if (session.user) {
         (session.user as any).id = user.id;
+        // Attach suspended flag so UI and API routes can gate access
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { suspended: true },
+        });
+        (session.user as any).suspended = dbUser?.suspended ?? false;
         const account = await prisma.account.findFirst({
           where: { userId: user.id, provider: "google" },
         });

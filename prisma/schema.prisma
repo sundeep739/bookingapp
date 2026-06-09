@@ -65,6 +65,14 @@ model User {
   // Payments (Stripe Connect — receiving money from bookings)
   stripeConnectId      String?   @unique
   stripeChargesEnabled Boolean   @default(false)
+
+  // Calendar subscription feed
+  calendarToken        String?   @unique  // read-only token for iCal feed URL
+
+  // Admin controls
+  suspended            Boolean   @default(false)
+  suspendedReason      String?
+  adminNote            String?
 }
 
 model VerificationToken {

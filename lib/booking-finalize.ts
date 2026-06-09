@@ -5,8 +5,8 @@ import { sendBookingConfirmationToGuest, sendBookingNotificationToHost } from "@
 
 /**
  * Runs the side-effects of a confirmed booking: creates the Google Calendar
- * event (with a Meet link) and sends the guest + host emails. Safe-ish to call
- * once per booking; calendar creation is guarded by googleEventId.
+ * event (with a Meet link) and sends the guest + host emails (with .ics attachments).
+ * Safe-ish to call once per booking; calendar creation is guarded by googleEventId.
  */
 export async function finalizeBooking(bookingId: string) {
   const booking = await prisma.booking.findUnique({
@@ -20,7 +20,7 @@ export async function finalizeBooking(bookingId: string) {
 
   let meetLink: string | null = booking.meetingLink ?? null;
 
-  // Calendar (only if not already created)
+  // Google Calendar (only if not already created)
   if (!booking.googleEventId) {
     const token = await getFreshGoogleAccessToken(booking.hostId);
     if (token) {
@@ -46,27 +46,35 @@ export async function finalizeBooking(bookingId: string) {
   }
 
   const tz = booking.timezone || "UTC";
+
+  // Guest confirmation email — includes .ics for iOS/Outlook/Apple Calendar
   sendBookingConfirmationToGuest({
-    inviteeName: booking.inviteeName,
+    bookingId:    booking.id,
+    inviteeName:  booking.inviteeName,
     inviteeEmail: booking.inviteeEmail,
-    hostName: booking.host.name ?? booking.host.username ?? "Host",
-    eventTitle: booking.eventType.title,
-    startTime: booking.startTime,
-    endTime: booking.endTime,
-    timezone: tz,
-    cancelToken: booking.cancelToken!,
-    meetingLink: meetLink,
+    hostName:     booking.host.name ?? booking.host.username ?? "Host",
+    hostEmail:    booking.host.email,
+    eventTitle:   booking.eventType.title,
+    startTime:    booking.startTime,
+    endTime:      booking.endTime,
+    timezone:     tz,
+    cancelToken:  booking.cancelToken!,
+    meetingLink:  meetLink,
+    location:     booking.eventType.location,
   }).catch(() => {});
 
+  // Host notification email — also includes .ics
   sendBookingNotificationToHost({
-    hostEmail: booking.host.email!,
-    hostName: booking.host.name ?? booking.host.username ?? "Host",
-    inviteeName: booking.inviteeName,
+    bookingId:    booking.id,
+    hostEmail:    booking.host.email!,
+    hostName:     booking.host.name ?? booking.host.username ?? "Host",
+    inviteeName:  booking.inviteeName,
     inviteeEmail: booking.inviteeEmail,
-    eventTitle: booking.eventType.title,
-    startTime: booking.startTime,
-    endTime: booking.endTime,
-    timezone: tz,
-    notes: booking.notes,
+    eventTitle:   booking.eventType.title,
+    startTime:    booking.startTime,
+    endTime:      booking.endTime,
+    timezone:     tz,
+    notes:        booking.notes,
+    location:     booking.eventType.location,
   }).catch(() => {});
 }
