@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   const userId = (session.user as any).id;
   const { searchParams } = req.nextUrl;
   const status = searchParams.get("status");
-  const limit = parseInt(searchParams.get("limit") ?? "50");
+  const limit = Math.min(parseInt(searchParams.get("limit") ?? "50"), 200);
 
   const bookings = await prisma.booking.findMany({
     where: {
