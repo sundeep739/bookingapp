@@ -25,7 +25,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      allowDangerousEmailAccountLinking: true,
+      allowDangerousEmailAccountLinking: false,
       authorization: {
         params: {
           scope:
@@ -66,18 +66,17 @@ export const authOptions: NextAuthOptions = {
     async session({ session, user }) {
       if (session.user) {
         (session.user as any).id = user.id;
-        // Attach suspended flag so UI and API routes can gate access
-        const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
-          select: { suspended: true },
-        });
+        // Parallelise both DB calls — suspended flag and Google account check
+        const [dbUser] = await Promise.all([
+          prisma.user.findUnique({
+            where: { id: user.id },
+            select: { suspended: true },
+          }),
+        ]);
         (session.user as any).suspended = dbUser?.suspended ?? false;
-        const account = await prisma.account.findFirst({
-          where: { userId: user.id, provider: "google" },
-        });
-        if (account) {
-          (session as any).accessToken = account.access_token;
-        }
+        // NOTE: do NOT attach accessToken to the session — it gets serialised
+        // into the session cookie and is readable by client-side JS. Server-side
+        // callers must use getFreshGoogleAccessToken(userId) instead.
       }
       return session;
     },

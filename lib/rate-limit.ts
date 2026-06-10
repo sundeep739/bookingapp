@@ -17,8 +17,13 @@ export function rateLimit(key: string, limit: number, windowMs: number): boolean
 }
 
 export function clientIp(req: Request): string {
+  // Vercel appends the real client IP as the rightmost entry in x-forwarded-for.
+  // Never trust the leftmost entry — it can be spoofed by the client.
+  // x-vercel-proxied-for is set by Vercel's edge and is not forgeable.
+  const vercelIp = req.headers.get("x-vercel-proxied-for");
+  if (vercelIp) return vercelIp.split(",")[0].trim();
   const xff = req.headers.get("x-forwarded-for");
-  if (xff) return xff.split(",")[0].trim();
+  if (xff) return xff.split(",").at(-1)!.trim();
   return req.headers.get("x-real-ip") ?? "unknown";
 }
 

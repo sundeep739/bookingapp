@@ -25,10 +25,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   });
   const memberIds = allMembers.map((m) => m.userId);
 
-  // Admins/owners see all bookings, members see only their own
+  // Admins/owners see all bookings, members see only their own.
+  // Validate staffId is actually a member of this org to prevent IDOR.
+  const validStaffId = staffId && memberIds.includes(staffId) ? staffId : null;
   const hostFilter = member.role === "MEMBER"
     ? [userId]
-    : staffId ? [staffId] : memberIds;
+    : validStaffId ? [validStaffId] : memberIds;
 
   const bookings = await prisma.booking.findMany({
     where: {

@@ -8,8 +8,8 @@ import { limitsFor } from "@/lib/plan";
 
 export async function GET(req: Request) {
   // Protect with a secret so only Vercel cron can call it
-  const authHeader = req.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret || req.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -52,10 +52,12 @@ export async function GET(req: Request) {
   let sent24h = 0;
   let sent1h = 0;
   const errors: string[] = [];
+  const success24hIds: string[] = [];
+  const success1hIds: string[] = [];
 
   // Send 24h reminders
   for (const booking of due24h) {
-    if (!limitsFor(booking.host.plan).sms) continue; // gated to paid plans
+    if (!limitsFor(booking.host.plan).sms) continue;
     try {
       await sendSmsReminder({
         to: booking.inviteePhone!,
@@ -66,10 +68,7 @@ export async function GET(req: Request) {
         cancelToken: booking.cancelToken,
         hoursUntil: 24,
       });
-      await prisma.booking.update({
-        where: { id: booking.id },
-        data: { sms24hSentAt: now },
-      });
+      success24hIds.push(booking.id);
       sent24h++;
     } catch (err: any) {
       errors.push(`24h booking ${booking.id}: ${err.message}`);
@@ -78,7 +77,7 @@ export async function GET(req: Request) {
 
   // Send 1h reminders
   for (const booking of due1h) {
-    if (!limitsFor(booking.host.plan).sms) continue; // gated to paid plans
+    if (!limitsFor(booking.host.plan).sms) continue;
     try {
       await sendSmsReminder({
         to: booking.inviteePhone!,
@@ -89,15 +88,24 @@ export async function GET(req: Request) {
         cancelToken: booking.cancelToken,
         hoursUntil: 1,
       });
-      await prisma.booking.update({
-        where: { id: booking.id },
-        data: { sms1hSentAt: now },
-      });
+      success1hIds.push(booking.id);
       sent1h++;
     } catch (err: any) {
       errors.push(`1h booking ${booking.id}: ${err.message}`);
     }
   }
+
+  // Batch update sent flags — one query instead of one per booking
+  await Promise.all([
+    success24hIds.length && prisma.booking.updateMany({
+      where: { id: { in: success24hIds } },
+      data: { sms24hSentAt: now },
+    }),
+    success1hIds.length && prisma.booking.updateMany({
+      where: { id: { in: success1hIds } },
+      data: { sms1hSentAt: now },
+    }),
+  ]);
 
   return NextResponse.json({
     ok: true,

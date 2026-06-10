@@ -3,9 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { sendRescheduleEmail } from "@/lib/email";
 import { getFreshGoogleAccessToken } from "@/lib/google-token";
 import { updateGoogleCalendarEvent } from "@/lib/google-calendar";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 // Guest self-service reschedule, authenticated by the booking's cancelToken.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
+  if (!rateLimit(`reschedule:${clientIp(req)}`, 10, 60_000)) {
+    return NextResponse.json({ error: "Too many requests." }, { status: 429 });
+  }
   const { token } = await params;
   const { start } = await req.json();
   if (!start) return NextResponse.json({ error: "Start time required" }, { status: 400 });

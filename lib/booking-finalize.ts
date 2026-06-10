@@ -12,7 +12,7 @@ export async function finalizeBooking(bookingId: string) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: {
-      host: true,
+      host: { select: { id: true, name: true, email: true, username: true, timezone: true } },
       eventType: { select: { title: true, location: true } },
     },
   });

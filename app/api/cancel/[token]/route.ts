@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { notifyCancellation } from "@/lib/cancellation";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -26,6 +27,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
 }
 
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
+  if (!rateLimit(`cancel:${clientIp(_req)}`, 10, 60_000)) {
+    return NextResponse.json({ error: "Too many requests." }, { status: 429 });
+  }
   const { token } = await params;
   const booking = await prisma.booking.findUnique({
     where: { cancelToken: token },

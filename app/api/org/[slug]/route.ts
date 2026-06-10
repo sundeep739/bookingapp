@@ -6,6 +6,13 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
   const { slug } = await params;
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = (session.user as any).id;
+
+  // Verify the requester is a member of this org before returning its data
+  const membership = await prisma.orgMember.findFirst({
+    where: { org: { slug }, userId, isActive: true },
+  });
+  if (!membership) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const org = await prisma.organization.findUnique({
     where: { slug },

@@ -5,6 +5,16 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 const FROM = process.env.RESEND_FROM_EMAIL ?? "BookEasy <noreply@bookeasy.app>";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
+/** Escape user-supplied strings before embedding in HTML email bodies. */
+function h(s: string | null | undefined): string {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
 function formatDateTime(date: Date, timezone: string) {
   return date.toLocaleString("en-US", {
     timeZone: timezone,
@@ -52,12 +62,12 @@ export async function sendBookingConfirmationToGuest({
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
         <h2 style="color:#1a1f36;margin-bottom:4px">Your booking is confirmed!</h2>
-        <p style="color:#6b7280;margin-top:0">Hi ${inviteeName}, here are your meeting details:</p>
+        <p style="color:#6b7280;margin-top:0">Hi ${h(inviteeName)}, here are your meeting details:</p>
         <div style="background:#f4f6fb;border-radius:12px;padding:20px;margin:20px 0">
-          <p style="margin:0 0 8px;color:#374151"><strong>📅 Event:</strong> ${eventTitle}</p>
-          <p style="margin:0 0 8px;color:#374151"><strong>🕐 When:</strong> ${dateStr}</p>
-          <p style="margin:0 ${meetingLink ? "0 8px" : ""};color:#374151"><strong>👤 Host:</strong> ${hostName}</p>
-          ${meetingLink ? `<p style="margin:0;color:#374151"><strong>🎥 Join:</strong> <a href="${meetingLink}" style="color:#e53e6d">${meetingLink}</a></p>` : ""}
+          <p style="margin:0 0 8px;color:#374151"><strong>📅 Event:</strong> ${h(eventTitle)}</p>
+          <p style="margin:0 0 8px;color:#374151"><strong>🕐 When:</strong> ${h(dateStr)}</p>
+          <p style="margin:0 ${meetingLink ? "0 8px" : ""};color:#374151"><strong>👤 Host:</strong> ${h(hostName)}</p>
+          ${meetingLink ? `<p style="margin:0;color:#374151"><strong>🎥 Join:</strong> <a href="${h(meetingLink)}" style="color:#e53e6d">${h(meetingLink)}</a></p>` : ""}
         </div>
         <p style="color:#6b7280;font-size:14px">
           📎 A <strong>calendar invite</strong> is attached — open it to add this meeting to Apple Calendar,
@@ -108,13 +118,13 @@ export async function sendBookingNotificationToHost({
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
         <h2 style="color:#1a1f36;margin-bottom:4px">New booking received!</h2>
-        <p style="color:#6b7280;margin-top:0">Hi ${hostName}, someone just booked a meeting with you.</p>
+        <p style="color:#6b7280;margin-top:0">Hi ${h(hostName)}, someone just booked a meeting with you.</p>
         <div style="background:#f4f6fb;border-radius:12px;padding:20px;margin:20px 0">
-          <p style="margin:0 0 8px;color:#374151"><strong>👤 Name:</strong> ${inviteeName}</p>
-          <p style="margin:0 0 8px;color:#374151"><strong>✉️ Email:</strong> ${inviteeEmail}</p>
-          <p style="margin:0 0 8px;color:#374151"><strong>📅 Event:</strong> ${eventTitle}</p>
-          <p style="margin:0 0 ${notes ? "8px" : "0"};color:#374151"><strong>🕐 When:</strong> ${dateStr}</p>
-          ${notes ? `<p style="margin:0;color:#374151"><strong>📝 Notes:</strong> ${notes}</p>` : ""}
+          <p style="margin:0 0 8px;color:#374151"><strong>👤 Name:</strong> ${h(inviteeName)}</p>
+          <p style="margin:0 0 8px;color:#374151"><strong>✉️ Email:</strong> ${h(inviteeEmail)}</p>
+          <p style="margin:0 0 8px;color:#374151"><strong>📅 Event:</strong> ${h(eventTitle)}</p>
+          <p style="margin:0 0 ${notes ? "8px" : "0"};color:#374151"><strong>🕐 When:</strong> ${h(dateStr)}</p>
+          ${notes ? `<p style="margin:0;color:#374151"><strong>📝 Notes:</strong> ${h(notes)}</p>` : ""}
         </div>
         <a href="${APP_URL}/dashboard/bookings" style="display:inline-block;background:#e53e6d;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600">View in Dashboard →</a>
         <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0"/>
@@ -166,11 +176,11 @@ export async function sendRescheduleEmail({
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
         <h2 style="color:#1a1f36;margin-bottom:4px">Your booking has been rescheduled</h2>
-        <p style="color:#6b7280;margin-top:0">Hi ${inviteeName}, the time for your meeting has changed.</p>
+        <p style="color:#6b7280;margin-top:0">Hi ${h(inviteeName)}, the time for your meeting has changed.</p>
         <div style="background:#f4f6fb;border-radius:12px;padding:20px;margin:20px 0">
-          <p style="margin:0 0 8px;color:#374151"><strong>📅 Event:</strong> ${eventTitle}</p>
-          <p style="margin:0 0 8px;color:#9ca3af;text-decoration:line-through"><strong>Was:</strong> ${oldStr}</p>
-          <p style="margin:0;color:#111827"><strong>🕐 Now:</strong> ${newStr}</p>
+          <p style="margin:0 0 8px;color:#374151"><strong>📅 Event:</strong> ${h(eventTitle)}</p>
+          <p style="margin:0 0 8px;color:#9ca3af;text-decoration:line-through"><strong>Was:</strong> ${h(oldStr)}</p>
+          <p style="margin:0;color:#111827"><strong>🕐 Now:</strong> ${h(newStr)}</p>
         </div>
         <p style="color:#6b7280;font-size:13px">📎 Updated calendar invite attached — open it to update your calendar.</p>
         ${cancelUrl ? `<p style="color:#6b7280;font-size:14px">Can't make the new time? <a href="${cancelUrl}" style="color:#e53e6d">Cancel here</a>.</p>` : ""}
@@ -216,10 +226,10 @@ export async function sendCancellationEmail({
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
         <h2 style="color:#1a1f36">Booking Cancelled</h2>
-        <p style="color:#6b7280">Hi ${inviteeName}, your booking has been cancelled.</p>
+        <p style="color:#6b7280">Hi ${h(inviteeName)}, your booking has been cancelled.</p>
         <div style="background:#f4f6fb;border-radius:12px;padding:20px;margin:20px 0">
-          <p style="margin:0 0 8px;color:#374151"><strong>📅 Event:</strong> ${eventTitle}</p>
-          <p style="margin:0;color:#374151"><strong>🕐 Was scheduled for:</strong> ${dateStr}</p>
+          <p style="margin:0 0 8px;color:#374151"><strong>📅 Event:</strong> ${h(eventTitle)}</p>
+          <p style="margin:0;color:#374151"><strong>🕐 Was scheduled for:</strong> ${h(dateStr)}</p>
         </div>
         <p style="color:#6b7280;font-size:13px">📎 A cancellation notice is attached — open it to remove this event from your calendar.</p>
         <p style="color:#6b7280;font-size:14px">Want to rebook? <a href="${rebookUrl}" style="color:#e53e6d">Visit the booking page</a>.</p>

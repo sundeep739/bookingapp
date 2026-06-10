@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getFreshGoogleAccessToken } from "@/lib/google-token";
 import { getCalendarBusyTimes } from "@/lib/google-calendar";
 import { fromZonedTime } from "date-fns-tz";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 function toMinutes(time: string): number {
   const [h, m] = time.split(":").map(Number);
@@ -21,6 +22,9 @@ export async function GET(
   { params }: { params: Promise<{ username: string }> }
 ) {
   const { username } = await params;
+  if (!rateLimit(`slots:${clientIp(req)}`, 60, 60_000)) {
+    return NextResponse.json({ error: "Too many requests." }, { status: 429 });
+  }
   const { searchParams } = req.nextUrl;
   const dateStr    = searchParams.get("date");   // YYYY-MM-DD (calendar date in host tz)
   const eventSlug  = searchParams.get("slug");

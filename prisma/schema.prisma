@@ -159,6 +159,11 @@ model Booking {
   eventType      EventType     @relation(fields: [eventTypeId], references: [id])
   host           User          @relation("HostBookings", fields: [hostId], references: [id])
   organization   Organization? @relation(fields: [orgId], references: [id])
+
+  @@index([hostId])
+  @@index([hostId, startTime])
+  @@index([hostId, status])
+  @@index([paymentStatus])
 }
 
 model WaitlistEntry {
@@ -177,6 +182,7 @@ model WaitlistEntry {
   host        User      @relation(fields: [hostId], references: [id], onDelete: Cascade)
 
   @@unique([eventTypeId, email])
+  @@index([eventTypeId, notified])
 }
 
 enum BookingStatus {
@@ -230,6 +236,7 @@ model OrgMember {
   department Department?  @relation(fields: [deptId], references: [id])
 
   @@unique([orgId, userId])
+  @@index([orgId, isActive])
 }
 
 model Department {

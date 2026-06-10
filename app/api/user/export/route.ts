@@ -15,7 +15,19 @@ export async function GET() {
     }),
     prisma.eventType.findMany({ where: { userId } }),
     prisma.availability.findMany({ where: { userId } }),
-    prisma.booking.findMany({ where: { hostId: userId } }),
+    prisma.booking.findMany({
+      where: { hostId: userId },
+      select: {
+        id: true, inviteeName: true, inviteeEmail: true, inviteePhone: true,
+        startTime: true, endTime: true, timezone: true, status: true,
+        paymentStatus: true, amountPaid: true, notes: true, answers: true,
+        createdAt: true,
+        eventType: { select: { title: true, slug: true } },
+        // cancelToken and stripePaymentId intentionally excluded
+      },
+      orderBy: { startTime: "desc" },
+      take: 10000,
+    }),
     prisma.organization.findMany({ where: { ownerId: userId } }),
     prisma.orgMember.findMany({ where: { userId }, include: { org: { select: { name: true, slug: true } } } }),
   ]);
