@@ -333,7 +333,7 @@ function BillingTab({ plan, planStatus, planRenewsAt }: { plan: string; planStat
           const isDowngrade = idx < currentIdx;
           return (
             <div key={p.key} className={`rounded-2xl border-2 p-5 ${isCurrent ? "" : "border-gray-100"}`}
-              style={isCurrent ? { borderColor: "#4F46E5", backgroundColor: "#fff1f5" } : {}}>
+              style={isCurrent ? { borderColor: "#4F46E5", backgroundColor: "#EEF2FF" } : {}}>
               <div className="flex items-baseline justify-between">
                 <p className="font-bold text-gray-900">{p.name}</p>
                 <p className="text-lg font-bold text-gray-900">{p.price}<span className="text-xs text-gray-400 font-normal">/mo</span></p>

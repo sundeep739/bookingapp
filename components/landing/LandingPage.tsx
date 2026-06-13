@@ -72,7 +72,7 @@ const USE_CASES = [
   {
     icon: Scissors,
     color: "#4F46E5",
-    bg: "#fff1f5",
+    bg: "#EEF2FF",
     title: "Barber Shops & Salons",
     desc: "Clients pick their favourite stylist and service. See all staff availability on one page.",
     features: ["Staff profiles", "Service catalog", "Walk-in waitlist", "No-show protection"],

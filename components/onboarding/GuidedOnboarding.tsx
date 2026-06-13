@@ -78,7 +78,7 @@ function weekDefault(fromDay: number, toDay: number, start: string, end: string)
 }
 
 const USE_CASES: { id: UseCase; icon: any; title: string; desc: string; color: string; bg: string }[] = [
-  { id: "individual", icon: UserIcon, title: "Just me", desc: "A personal booking page for meetings or sessions.", color: "#4F46E5", bg: "#fff1f5" },
+  { id: "individual", icon: UserIcon, title: "Just me", desc: "A personal booking page for meetings or sessions.", color: "#4F46E5", bg: "#EEF2FF" },
   { id: "clinic", icon: Stethoscope, title: "Clinic / Hospital", desc: "Multiple doctors, departments, and appointment types.", color: "#3b82f6", bg: "#eff6ff" },
   { id: "barbershop", icon: Scissors, title: "Barber / Salon", desc: "Staff, services with prices, and shop hours.", color: "#10b981", bg: "#ecfdf5" },
   { id: "other", icon: Briefcase, title: "Something else", desc: "Tutor, coach, trainer, consultant — fully customizable.", color: "#8b5cf6", bg: "#f5f3ff" },
@@ -668,7 +668,7 @@ function ReviewStep({ useCase, isOrg, hasPrices, hasDepartments, username, orgNa
 function StepHeader({ icon: Icon, title, subtitle }: { icon: any; title: string; subtitle: string }) {
   return (
     <div className="mb-6">
-      <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: "#fff1f5" }}>
+      <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: "#EEF2FF" }}>
         <Icon size={22} style={{ color: "#4F46E5" }} />
       </div>
       <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{title}</h1>

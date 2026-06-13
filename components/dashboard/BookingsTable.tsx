@@ -76,11 +76,27 @@ export default function BookingsTable() {
         ) : filtered.length === 0 ? (
           <div className="py-16 text-center text-gray-400">
             <Clock size={40} className="mx-auto mb-3 opacity-30" />
-            <p className="font-medium">{search ? "No bookings match your search" : "No bookings yet"}</p>
-            {!search && <p className="text-sm mt-1">Bookings will appear here once people start scheduling.</p>}
+            <p className="font-medium text-gray-500">
+              {search ? "No bookings match your search"
+                : activeFilter !== "All" ? `No ${statusConfig[activeFilter]?.label.toLowerCase()} bookings`
+                : "No bookings yet"}
+            </p>
+            {!search && activeFilter === "All" && (
+              <>
+                <p className="text-sm mt-1">Share your booking link and they'll show up here.</p>
+                <a href="/dashboard/event-types"
+                  className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+                  style={{ backgroundColor: "#4F46E5" }}>
+                  Set up an event type
+                </a>
+              </>
+            )}
           </div>
         ) : (
           <div className="overflow-x-auto">
+            <div className="px-6 py-3 border-b border-gray-100 text-xs font-medium text-gray-400">
+              {filtered.length} {filtered.length === 1 ? "booking" : "bookings"}{search ? " found" : ""}
+            </div>
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100">
