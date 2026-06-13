@@ -39,7 +39,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
               bio: true,
               eventTypes: {
                 where: { isActive: true },
-                select: { id: true, title: true, duration: true, price: true, color: true, description: true },
+                select: { id: true, title: true, duration: true, price: true, currency: true, color: true, description: true },
                 orderBy: { createdAt: "asc" },
               },
             },

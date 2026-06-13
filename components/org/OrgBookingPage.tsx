@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Building2, MapPin, Phone, Globe, Users, Clock,
-  ChevronRight, Search, Filter, Star
+  ChevronRight, Search, Zap,
 } from "lucide-react";
+import RoundRobinBooking, { type TeamService } from "./RoundRobinBooking";
 
 const ORG_TYPE_LABELS: Record<string, string> = {
   clinic: "Medical Clinic",
@@ -30,6 +31,32 @@ export default function OrgBookingPage({ slug }: Props) {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedDept, setSelectedDept] = useState<string>("all");
+  const [selectedService, setSelectedService] = useState<TeamService | null>(null);
+
+  // Services offered by 2+ staff → bookable via round-robin ("any available").
+  const teamServices = useMemo<TeamService[]>(() => {
+    if (!org?.members) return [];
+    const groups = new Map<string, { title: string; durations: number[]; prices: number[]; currency: string; color: string; staff: Set<string> }>();
+    for (const m of org.members) {
+      for (const et of (m.user.eventTypes ?? [])) {
+        const key = et.title.trim().toLowerCase();
+        const g = groups.get(key) ?? { title: et.title, durations: [] as number[], prices: [] as number[], currency: et.currency ?? "USD", color: et.color ?? "#4F46E5", staff: new Set<string>() };
+        g.durations.push(et.duration);
+        g.prices.push(et.price ?? 0);
+        g.staff.add(m.user.id);
+        groups.set(key, g);
+      }
+    }
+    return [...groups.entries()]
+      .filter(([, g]) => g.staff.size >= 2)
+      .map(([key, g]) => ({
+        title: g.title, key,
+        duration: Math.max(...g.durations),
+        price: Math.min(...g.prices),
+        currency: g.currency, color: g.color,
+        staffCount: g.staff.size,
+      }));
+  }, [org]);
 
   useEffect(() => {
     fetch(`/api/org/${slug}/public`)
@@ -115,8 +142,46 @@ export default function OrgBookingPage({ slug }: Props) {
         </div>
       </div>
 
+      {selectedService && (
+        <RoundRobinBooking slug={slug} service={selectedService} onClose={() => setSelectedService(null)} />
+      )}
+
       {/* Main content */}
       <div className="max-w-5xl mx-auto px-4 py-8">
+        {/* Book with any available staff (round-robin) */}
+        {teamServices.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-3">
+              <Zap size={16} className="text-indigo-500" />
+              <h2 className="text-base font-semibold text-gray-900">Book with any available staff</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {teamServices.map((svc) => (
+                <button key={svc.key} onClick={() => setSelectedService(svc)}
+                  className="text-left bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-md hover:border-indigo-200 transition-all group">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: svc.color }} />
+                    <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors truncate">{svc.title}</h3>
+                  </div>
+                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                    <span className="flex items-center gap-1"><Clock size={12} />{svc.duration} min</span>
+                    <span className="flex items-center gap-1"><Users size={12} />{svc.staffCount} staff</span>
+                    {svc.price > 0 && <span className="ml-auto font-semibold text-gray-700">{svc.currency} {svc.price}</span>}
+                  </div>
+                  <p className="text-xs text-indigo-600 font-medium mt-3 flex items-center gap-1">
+                    Fastest availability <ChevronRight size={13} />
+                  </p>
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-3 my-7">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs text-gray-400">or pick a specific staff member</span>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+          </div>
+        )}
+
         {/* Department filter + search */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <div className="relative flex-1">
