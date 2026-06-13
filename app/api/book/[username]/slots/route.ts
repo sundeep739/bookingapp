@@ -41,13 +41,16 @@ export async function GET(
 
   const eventType = await prisma.eventType.findFirst({
     where: { userId: user.id, slug: eventSlug },
-    select: { bufferBefore: true, bufferAfter: true, minNotice: true, maxDaysAhead: true },
+    select: { id: true, bufferBefore: true, bufferAfter: true, minNotice: true, maxDaysAhead: true, slotInterval: true, capacity: true },
   });
 
   const bufferBefore = eventType?.bufferBefore ?? 0;
   const bufferAfter  = eventType?.bufferAfter  ?? 0;
   const minNotice    = eventType?.minNotice    ?? 0;  // minutes
   const maxDaysAhead = eventType?.maxDaysAhead ?? 60;
+  // Step between start times: explicit interval, or step by the duration itself.
+  const interval     = eventType?.slotInterval && eventType.slotInterval > 0 ? eventType.slotInterval : duration;
+  const capacity     = eventType?.capacity ?? 1;
 
   const now = new Date();
   const [year, month, day] = dateStr.split("-").map(Number);
@@ -91,9 +94,49 @@ export async function GET(
     endMin   = toMinutes(avail.endTime);
   }
 
-  // Existing bookings as absolute instants (with buffers)
   const windowStart = instantFor(dateStr, Math.max(0, startMin - 120), hostTz);
   const windowEnd   = instantFor(dateStr, endMin + 120, hostTz);
+  const earliest    = now.getTime() + minNotice * 60000;
+
+  const labelFmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: guestTz, hour: "numeric", minute: "2-digit", hour12: true,
+  });
+
+  const slots: { start: string; label: string; seatsLeft?: number }[] = [];
+
+  if (capacity > 1) {
+    // ── Group / class event: a slot is open while signups < capacity ─────────
+    // Count existing signups for THIS event at each start time. Other bookings
+    // and calendar busy-times don't block — the class is dedicated time.
+    const signups = await prisma.booking.findMany({
+      where: {
+        hostId: user.id,
+        eventTypeId: eventType!.id,
+        status: { in: ["CONFIRMED", "PENDING"] },
+        startTime: { gte: windowStart, lte: windowEnd },
+      },
+      select: { startTime: true },
+    });
+    const countByStart = new Map<number, number>();
+    for (const b of signups) {
+      const k = b.startTime.getTime();
+      countByStart.set(k, (countByStart.get(k) ?? 0) + 1);
+    }
+
+    for (let t = startMin; t + duration <= endMin; t += interval) {
+      const startInstant = instantFor(dateStr, t, hostTz);
+      const sMs = startInstant.getTime();
+      if (sMs < earliest) continue;
+      const taken = countByStart.get(sMs) ?? 0;
+      if (taken < capacity) {
+        slots.push({ start: startInstant.toISOString(), label: labelFmt.format(startInstant), seatsLeft: capacity - taken });
+      }
+    }
+
+    return NextResponse.json({ slots });
+  }
+
+  // ── 1:1 event: block any slot that overlaps a booking or calendar busy-time ─
   const bookings = await prisma.booking.findMany({
     where: {
       hostId: user.id,
@@ -125,14 +168,7 @@ export async function GET(
     console.error("Free/busy lookup failed:", e);
   }
 
-  const earliest = now.getTime() + minNotice * 60000;
-
-  const labelFmt = new Intl.DateTimeFormat("en-US", {
-    timeZone: guestTz, hour: "numeric", minute: "2-digit", hour12: true,
-  });
-
-  const slots: { start: string; label: string }[] = [];
-  for (let t = startMin; t + duration <= endMin; t += 30) {
+  for (let t = startMin; t + duration <= endMin; t += interval) {
     const startInstant = instantFor(dateStr, t, hostTz);
     const endInstant = new Date(startInstant.getTime() + duration * 60000);
     const sMs = startInstant.getTime();

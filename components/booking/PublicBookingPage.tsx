@@ -49,7 +49,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
   const [selectedDate, setSelectedDate]   = useState<Date | null>(null);
-  const [slots, setSlots]                 = useState<{ start: string; label: string }[]>([]);
+  const [slots, setSlots]                 = useState<{ start: string; label: string; seatsLeft?: number }[]>([]);
   const [slotsLoading, setSlotsLoading]   = useState(false);
   const [selectedSlot, setSelectedSlot]   = useState<{ start: string; label: string } | null>(null);
   const selectedTime = selectedSlot?.label ?? null;
@@ -453,10 +453,15 @@ export default function PublicBookingPage({ username }: { username: string }) {
                             <button
                               key={slot.start}
                               onClick={() => { setSelectedSlot(slot); setStep("fill-form"); }}
-                              className="py-3 rounded-xl text-sm font-medium border-2 transition-all hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50"
+                              className="py-2.5 rounded-xl text-sm font-medium border-2 transition-all hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 flex flex-col items-center leading-tight"
                               style={{ borderColor: "#e5e7eb" }}
                             >
-                              {slot.label}
+                              <span>{slot.label}</span>
+                              {slot.seatsLeft !== undefined && (
+                                <span className="text-[11px] font-normal text-gray-400 mt-0.5">
+                                  {slot.seatsLeft} {slot.seatsLeft === 1 ? "seat" : "seats"} left
+                                </span>
+                              )}
                             </button>
                           ))}
                         </div>

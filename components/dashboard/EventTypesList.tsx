@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Plus, Clock, Link2, Pencil, Trash2, Video, MapPin, Phone, ToggleLeft, ToggleRight, Loader2, X, Save, AlertCircle, HelpCircle, GripVertical } from "lucide-react";
+import { Plus, Clock, Link2, Pencil, Trash2, Video, MapPin, Phone, ToggleLeft, ToggleRight, Loader2, X, Save, AlertCircle, HelpCircle, GripVertical, Users } from "lucide-react";
 
 type Question = { id: string; label: string; type: "text" | "textarea" | "select"; required: boolean; options?: string[] };
 let _qid = 0;
@@ -17,6 +17,8 @@ type EventType = {
   isActive: boolean;
   price: number;
   currency: string;
+  slotInterval?: number;
+  capacity?: number;
   _count: { bookings: number };
 };
 
@@ -54,6 +56,8 @@ function EventModal({
     color: event?.color ?? "#3b82f6",
     location: event?.location ?? "Google Meet",
     price: String(event?.price ?? 0),
+    slotInterval: String(event?.slotInterval ?? 0),
+    capacity: String(event?.capacity ?? 1),
   });
   const [questions, setQuestions] = useState<Question[]>(
     Array.isArray((event as any)?.questions) ? (event as any).questions : []
@@ -136,6 +140,25 @@ function EventModal({
                 className="w-full border border-gray-200 rounded-xl pl-7 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Time slot intervals</label>
+              <select value={form.slotInterval} onChange={(e) => setForm((p) => ({ ...p, slotInterval: e.target.value }))}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
+                <option value="0">Same as duration</option>
+                {[5, 10, 15, 20, 30, 45, 60].map((m) => <option key={m} value={m}>Every {m} min</option>)}
+              </select>
+              <p className="text-xs text-gray-400 mt-1">How often a start time is offered.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Capacity per slot</label>
+              <input type="number" min="1" step="1" value={form.capacity}
+                onChange={(e) => setForm((p) => ({ ...p, capacity: e.target.value }))}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
+              <p className="text-xs text-gray-400 mt-1">{parseInt(form.capacity) > 1 ? "Group event — multiple people per slot." : "1 = one-on-one."}</p>
+            </div>
+          </div>
+
           {/* Custom booking questions */}
           <div className="border-t border-gray-100 pt-4">
             <div className="flex items-center justify-between mb-2">
@@ -299,6 +322,9 @@ export default function EventTypesList() {
                       <span className="flex items-center gap-1 text-sm text-gray-500"><Clock size={14} />{ev.duration} min</span>
                       <span className="flex items-center gap-1 text-sm text-gray-500"><LocationIcon loc={ev.location} />{ev.location || "TBD"}</span>
                       {ev.price > 0 && <span className="text-sm font-semibold text-gray-700">${ev.price}</span>}
+                      {(ev.capacity ?? 1) > 1 && (
+                        <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600"><Users size={12} />Group · {ev.capacity}</span>
+                      )}
                     </div>
                   </div>
                   <button onClick={() => handleToggle(ev)} className="mt-1 flex-shrink-0">

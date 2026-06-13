@@ -49,16 +49,30 @@ export async function POST(
   let booking;
   try {
     booking = await prisma.$transaction(async (tx) => {
-      const clash = await tx.booking.findFirst({
-        where: {
-          hostId: host.id,
-          status: { in: ["CONFIRMED", "PENDING"] },
-          startTime: { lt: endTime },
-          endTime: { gt: startTime },
-        },
-        select: { id: true },
-      });
-      if (clash) throw new Error("SLOT_TAKEN");
+      if (eventType.capacity > 1) {
+        // Group/class event: allow up to `capacity` signups at the same start.
+        const taken = await tx.booking.count({
+          where: {
+            hostId: host.id,
+            eventTypeId: eventType.id,
+            startTime,
+            status: { in: ["CONFIRMED", "PENDING"] },
+          },
+        });
+        if (taken >= eventType.capacity) throw new Error("SLOT_TAKEN");
+      } else {
+        // 1:1 event: reject any overlapping booking.
+        const clash = await tx.booking.findFirst({
+          where: {
+            hostId: host.id,
+            status: { in: ["CONFIRMED", "PENDING"] },
+            startTime: { lt: endTime },
+            endTime: { gt: startTime },
+          },
+          select: { id: true },
+        });
+        if (clash) throw new Error("SLOT_TAKEN");
+      }
       return tx.booking.create({
         data: {
           eventTypeId:  eventType.id,

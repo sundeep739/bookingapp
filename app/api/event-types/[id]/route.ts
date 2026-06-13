@@ -10,7 +10,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const userId = (session.user as any).id;
   const { id } = await params;
   const body = await req.json();
-  const { title, description, duration, color, location, price, currency, isActive, bufferBefore, bufferAfter, minNotice, maxDaysAhead, questions } = body;
+  const { title, description, duration, color, location, price, currency, isActive, bufferBefore, bufferAfter, minNotice, maxDaysAhead, slotInterval, capacity, questions } = body;
 
   // Verify ownership
   const existing = await prisma.eventType.findFirst({ where: { id, userId } });
@@ -31,6 +31,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       ...(bufferAfter !== undefined && { bufferAfter: parseInt(bufferAfter) }),
       ...(minNotice !== undefined && { minNotice: parseInt(minNotice) }),
       ...(maxDaysAhead !== undefined && { maxDaysAhead: parseInt(maxDaysAhead) }),
+      ...(slotInterval !== undefined && { slotInterval: parseInt(slotInterval) }),
+      ...(capacity !== undefined && { capacity: Math.max(1, parseInt(capacity)) }),
       ...(questions !== undefined && { questions: Array.isArray(questions) && questions.length ? questions : Prisma.JsonNull }),
     },
   });
