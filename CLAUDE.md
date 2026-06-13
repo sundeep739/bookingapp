@@ -4,7 +4,12 @@
 
 **BookEasy** is a full-stack Calendly/cal.com clone. Hosts sign up, set their availability and event types, and share a public booking page. Guests book slots without an account. The app supports solo professionals, teams (clinics, barber shops), paid bookings, SMS reminders, and two-way Google Calendar sync.
 
-Live URL: `https://sundeep739-bookingapp.vercel.app`  
+Live URL: `https://bookingapp-flax.vercel.app` (Vercel project `bookingapp`, prj_8XQoolkjqO06wGcwqA7LIqwYbOUR).
+NOTE: `sundeep739-bookingapp.vercel.app` does NOT exist — don't reference it. There was an accidental
+duplicate Vercel project `bookingapp-g3vh` (same repo, auto-deployed on every push) that caused
+`redirect_uri_mismatch` login errors; it should be deleted. Always use the `bookingapp-flax` domain and
+keep `NEXTAUTH_URL` / `NEXT_PUBLIC_APP_URL` set to it. Google OAuth redirect URIs must include
+`/api/auth/callback/google` and `/api/integrations/google/callback` on that domain.
 Owner: Sundeep Shaw (`sundeepshaw@gmail.com`, GitHub: `sundeep739`)  
 Git committer email: `sundeep739@users.noreply.github.com` (required — Vercel blocks other emails)
 
