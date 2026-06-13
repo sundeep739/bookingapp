@@ -65,15 +65,10 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
+        // With the database session strategy, `user` is the full DB record —
+        // read id/suspended straight off it instead of an extra query per request.
         (session.user as any).id = user.id;
-        // Parallelise both DB calls — suspended flag and Google account check
-        const [dbUser] = await Promise.all([
-          prisma.user.findUnique({
-            where: { id: user.id },
-            select: { suspended: true },
-          }),
-        ]);
-        (session.user as any).suspended = dbUser?.suspended ?? false;
+        (session.user as any).suspended = (user as any).suspended ?? false;
         // NOTE: do NOT attach accessToken to the session — it gets serialised
         // into the session cookie and is readable by client-side JS. Server-side
         // callers must use getFreshGoogleAccessToken(userId) instead.
