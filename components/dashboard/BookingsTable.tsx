@@ -63,10 +63,10 @@ export default function BookingsTable() {
             </button>
           ))}
         </div>
-        <div className="relative">
+        <div className="relative w-full sm:w-auto">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
           <input type="text" placeholder="Search bookings..." value={search} onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 w-64" />
+            className="pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 w-full sm:w-64" />
         </div>
       </div>
 
@@ -93,60 +93,94 @@ export default function BookingsTable() {
             )}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <div className="px-6 py-3 border-b border-gray-100 text-xs font-medium text-gray-400">
+          <div>
+            <div className="px-4 sm:px-6 py-3 border-b border-gray-100 text-xs font-medium text-gray-400">
               {filtered.length} {filtered.length === 1 ? "booking" : "bookings"}{search ? " found" : ""}
             </div>
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-100">
-                  <th className="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Invitee</th>
-                  <th className="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Event Type</th>
-                  <th className="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Time</th>
-                  <th className="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3.5"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {filtered.map((b) => {
-                  const s = statusConfig[b.status] ?? statusConfig.PENDING;
-                  const SIcon = s.icon;
-                  return (
-                    <tr key={b.id} onClick={() => setSelected(b)} className="hover:bg-indigo-50/40 transition-colors cursor-pointer">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
-                            {b.inviteeName?.[0]?.toUpperCase()}
-                          </div>
-                          <div>
-                            <p className="text-sm font-semibold text-gray-900">{b.inviteeName}</p>
-                            <p className="text-xs text-gray-400">{b.inviteeEmail}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          {b.eventType?.color && <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: b.eventType.color }} />}
-                          <span className="text-sm text-gray-600">{b.eventType?.title}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-sm font-medium text-gray-800">{formatDate(b.startTime)}</p>
-                        <p className="text-xs text-gray-400">{formatTime(b.startTime)}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ color: s.color, backgroundColor: s.bg }}>
-                          <SIcon size={12} />{s.label}
+
+            {/* Mobile: card list */}
+            <div className="md:hidden divide-y divide-gray-50">
+              {filtered.map((b) => {
+                const s = statusConfig[b.status] ?? statusConfig.PENDING;
+                const SIcon = s.icon;
+                return (
+                  <button key={b.id} onClick={() => setSelected(b)}
+                    className="w-full text-left px-4 py-4 flex items-start gap-3 active:bg-indigo-50/50 transition-colors">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                      {b.inviteeName?.[0]?.toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{b.inviteeName}</p>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold flex-shrink-0" style={{ color: s.color, backgroundColor: s.bg }}>
+                          <SIcon size={10} />{s.label}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <ChevronRight size={16} className="text-gray-300 inline" />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </div>
+                      <p className="text-xs text-gray-400 truncate">{b.inviteeEmail}</p>
+                      <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-500">
+                        {b.eventType?.color && <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: b.eventType.color }} />}
+                        <span className="truncate">{b.eventType?.title}</span>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-0.5">{formatDate(b.startTime)} · {formatTime(b.startTime)}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-100">
+                    <th className="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Invitee</th>
+                    <th className="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Event Type</th>
+                    <th className="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Time</th>
+                    <th className="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3.5"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {filtered.map((b) => {
+                    const s = statusConfig[b.status] ?? statusConfig.PENDING;
+                    const SIcon = s.icon;
+                    return (
+                      <tr key={b.id} onClick={() => setSelected(b)} className="hover:bg-indigo-50/40 transition-colors cursor-pointer">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                              {b.inviteeName?.[0]?.toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-gray-900">{b.inviteeName}</p>
+                              <p className="text-xs text-gray-400">{b.inviteeEmail}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            {b.eventType?.color && <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: b.eventType.color }} />}
+                            <span className="text-sm text-gray-600">{b.eventType?.title}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="text-sm font-medium text-gray-800">{formatDate(b.startTime)}</p>
+                          <p className="text-xs text-gray-400">{formatTime(b.startTime)}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ color: s.color, backgroundColor: s.bg }}>
+                            <SIcon size={12} />{s.label}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <ChevronRight size={16} className="text-gray-300 inline" />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
