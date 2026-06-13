@@ -54,6 +54,7 @@ model User {
   ownedOrgs      Organization[]  @relation("OrgOwner")
   orgMemberships OrgMember[]
   waitlistEntries WaitlistEntry[]
+  workflows      Workflow[]
 
   // Billing (subscription)
   plan                 String    @default("free")
@@ -185,6 +186,36 @@ model WaitlistEntry {
 
   @@unique([eventTypeId, email])
   @@index([eventTypeId, notified])
+}
+
+// Custom reminder workflows — host-defined notifications around a booking.
+model Workflow {
+  id            String   @id @default(cuid())
+  userId        String
+  name          String
+  trigger       String   @default("BEFORE")  // BEFORE | AFTER (relative to start time)
+  offsetMinutes Int      @default(1440)       // how far before/after the start
+  channel       String   @default("EMAIL")    // EMAIL | SMS
+  subject       String?                        // email subject (ignored for SMS)
+  message       String                         // template body; supports {{name}} {{event}} {{time}} {{host}}
+  eventTypeId   String?                        // scope to one event type; null = all
+  enabled       Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model WorkflowSent {
+  id         String   @id @default(cuid())
+  workflowId String
+  bookingId  String
+  sentAt     DateTime @default(now())
+
+  @@unique([workflowId, bookingId])
+  @@index([bookingId])
 }
 
 enum BookingStatus {

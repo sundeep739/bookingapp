@@ -18,6 +18,19 @@ function formatPhone(phone: string): string {
   return `+${digits}`;
 }
 
+/** Generic SMS send — used by custom reminder workflows. No-op if Twilio unset. */
+export async function sendSms(to: string, body: string): Promise<boolean> {
+  const client = getTwilio();
+  if (!client || !fromNumber) return false;
+  try {
+    await client.messages.create({ body, from: fromNumber, to: formatPhone(to) });
+    return true;
+  } catch (err: any) {
+    console.error("SMS send error:", err?.message ?? err);
+    return false;
+  }
+}
+
 export async function sendSmsReminder({
   to,
   hostName,

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import {
   LayoutDashboard, Calendar, Clock, Users, BarChart2,
   Settings, LogOut, CalendarCheck, Sliders, ChevronRight,
-  ExternalLink, Menu, X,
+  ExternalLink, Menu, X, Zap,
 } from "lucide-react";
 
 const navItems = [
@@ -14,6 +14,7 @@ const navItems = [
   { icon: CalendarCheck,   label: "Event Types",  href: "/dashboard/event-types" },
   { icon: Calendar,        label: "Bookings",     href: "/dashboard/bookings" },
   { icon: Clock,           label: "Availability", href: "/dashboard/availability" },
+  { icon: Zap,             label: "Workflows",    href: "/dashboard/workflows" },
   { icon: Users,           label: "Teams",        href: "/dashboard/team" },
   { icon: BarChart2,       label: "Analytics",    href: "/dashboard/analytics" },
   { icon: Sliders,         label: "Integrations", href: "/dashboard/integrations" },

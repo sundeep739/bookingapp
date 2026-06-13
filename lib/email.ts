@@ -15,6 +15,30 @@ function h(s: string | null | undefined): string {
     .replace(/'/g, "&#x27;");
 }
 
+/**
+ * Send a custom reminder-workflow email. `body` is plain text from the host's
+ * template (already placeholder-substituted); it is HTML-escaped and wrapped in
+ * the BookEasy shell. No-op if Resend isn't configured.
+ */
+export async function sendWorkflowEmail({
+  to, subject, body,
+}: { to: string; subject: string; body: string }): Promise<boolean> {
+  if (!resend) return false;
+  const html = `
+    <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
+      <div style="white-space:pre-wrap;color:#374151;font-size:15px;line-height:1.6">${h(body)}</div>
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0"/>
+      <p style="color:#9ca3af;font-size:12px">Powered by BookEasy</p>
+    </div>`;
+  try {
+    await resend.emails.send({ from: FROM, to, subject, html });
+    return true;
+  } catch (err: any) {
+    console.error("Workflow email error:", err?.message ?? err);
+    return false;
+  }
+}
+
 function formatDateTime(date: Date, timezone: string) {
   return date.toLocaleString("en-US", {
     timeZone: timezone,
