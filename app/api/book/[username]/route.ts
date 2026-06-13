@@ -16,6 +16,10 @@ export async function GET(
       bio: true,
       timezone: true,
       suspended: true,
+      availability: {
+        where: { isActive: true },
+        select: { dayOfWeek: true },
+      },
       eventTypes: {
         where: { isActive: true },
         orderBy: { createdAt: "asc" },
@@ -43,7 +47,11 @@ export async function GET(
     return NextResponse.json({ error: "This booking page is not available." }, { status: 403 });
   }
 
-  // Don't expose the suspended flag to the public
-  const { suspended: _, ...publicUser } = user;
-  return NextResponse.json(publicUser);
+  // Distinct weekday numbers (0=Sun..6=Sat) the host actually works — lets the
+  // calendar enable only real working days instead of assuming Mon–Fri.
+  const availableDays = [...new Set(user.availability.map((a) => a.dayOfWeek))].sort();
+
+  // Don't expose the suspended flag or raw availability rows to the public
+  const { suspended: _s, availability: _a, ...rest } = user;
+  return NextResponse.json({ ...rest, availableDays });
 }

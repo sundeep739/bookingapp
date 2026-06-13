@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { CalendarCheck, Clock, Video, ChevronLeft, ChevronRight, Check, Loader2, MapPin } from "lucide-react";
+import { CalendarCheck, Clock, Video, ChevronLeft, ChevronRight, Check, Loader2, MapPin, Globe, AlertCircle } from "lucide-react";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const DAYS_SHORT = ["Su","Mo","Tu","We","Th","Fr","Sa"];
@@ -24,13 +24,18 @@ type HostProfile = {
   image: string | null;
   bio: string | null;
   eventTypes: EventType[];
+  availableDays: number[]; // weekday numbers (0=Sun..6=Sat) the host works
 };
 
-type Step = "select-service" | "pick-date" | "pick-time" | "fill-form" | "confirmed" | "waitlist-join" | "waitlist-confirmed";
+type Step = "select-service" | "schedule" | "fill-form" | "confirmed" | "waitlist-join" | "waitlist-confirmed";
 
 function toDateStr(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
+
+// The guest's own timezone (e.g. "Europe/London"), shown so they trust the times.
+const GUEST_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const GUEST_TZ_LABEL = GUEST_TZ.replace(/_/g, " ");
 
 export default function PublicBookingPage({ username }: { username: string }) {
   const [step, setStep]                   = useState<Step>("select-service");
@@ -51,6 +56,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
   const [form, setForm]                   = useState({ name: "", email: "", phone: "", notes: "" });
   const [answers, setAnswers]             = useState<Record<string, string>>({});
   const [submitting, setSubmitting]       = useState(false);
+  const [error, setError]                 = useState<string | null>(null);
   const [bookingId, setBookingId]         = useState<string | null>(null);
   const [waitlistForm, setWaitlistForm]   = useState({ name: "", email: "", phone: "" });
   const [waitlistSubmitting, setWaitlistSubmitting] = useState(false);
@@ -75,8 +81,9 @@ export default function PublicBookingPage({ username }: { username: string }) {
     if (!selectedDate || !selectedEvent) return;
     setSlotsLoading(true);
     setSlots([]);
+    setSelectedSlot(null);
     fetch(
-      `/api/book/${username}/slots?date=${toDateStr(selectedDate)}&slug=${selectedEvent.slug}&duration=${selectedEvent.duration}&tz=${encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone)}`
+      `/api/book/${username}/slots?date=${toDateStr(selectedDate)}&slug=${selectedEvent.slug}&duration=${selectedEvent.duration}&tz=${encodeURIComponent(GUEST_TZ)}`
     )
       .then((r) => r.json())
       .then((data) => setSlots(data.slots ?? []))
@@ -95,17 +102,22 @@ export default function PublicBookingPage({ username }: { username: string }) {
 
   const days = getDaysInMonth(currentMonth);
 
+  // A day is bookable only if it's today-or-later AND the host actually works
+  // that weekday (drawn from real availability, not a hardcoded Mon–Fri guess).
+  const workingDays = host?.availableDays ?? [];
   const isDisabled = (day: number | null) => {
     if (!day) return true;
     const d = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
     d.setHours(0, 0, 0, 0);
-    return d < today || d.getDay() === 0 || d.getDay() === 6;
+    if (d < today) return true;
+    return !workingDays.includes(d.getDay());
   };
 
   const handleBook = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedEvent || !selectedDate || !selectedSlot) return;
     setSubmitting(true);
+    setError(null);
     try {
       const res = await fetch(`/api/book/${username}/confirm`, {
         method: "POST",
@@ -122,7 +134,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
               .filter((q) => answers[q.id]?.trim())
               .map((q) => [q.label, answers[q.id]])
           ),
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          timezone: GUEST_TZ,
         }),
       });
       const data = await res.json();
@@ -134,12 +146,15 @@ export default function PublicBookingPage({ username }: { username: string }) {
         setBookingId(data.bookingId);
         setStep("confirmed");
       } else if (res.status === 409) {
-        alert(data.error ?? "That time was just taken. Please choose another.");
+        // Slot was taken between loading and submitting — send them back to re-pick.
+        setError(data.error ?? "That time was just taken. Please choose another.");
         setSelectedSlot(null);
-        setStep("pick-time");
+        setStep("schedule");
       } else {
-        alert(data.error ?? "Something went wrong. Please try again.");
+        setError(data.error ?? "Something went wrong. Please try again.");
       }
+    } catch {
+      setError("Network error. Please check your connection and try again.");
     } finally {
       setSubmitting(false);
     }
@@ -159,7 +174,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
           name: waitlistForm.name,
           email: waitlistForm.email,
           phone: waitlistForm.phone || null,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          timezone: GUEST_TZ,
         }),
       });
       setStep("waitlist-confirmed");
@@ -170,8 +185,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
 
   const progressSteps = [
     { id: "select-service", label: "Service" },
-    { id: "pick-date",      label: "Date" },
-    { id: "pick-time",      label: "Time" },
+    { id: "schedule",       label: "Date & time" },
     { id: "fill-form",      label: "Details" },
   ];
   const stepIdx = progressSteps.findIndex((s) => s.id === step);
@@ -221,7 +235,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
 
       <div className="max-w-5xl mx-auto px-6 py-10">
         {/* Progress bar */}
-        {step !== "confirmed" && (
+        {step !== "confirmed" && step !== "waitlist-join" && step !== "waitlist-confirmed" && (
           <div className="flex items-center justify-center gap-2 mb-8">
             {progressSteps.map((s, i) => (
               <div key={s.id} className="flex items-center gap-2">
@@ -240,6 +254,15 @@ export default function PublicBookingPage({ username }: { username: string }) {
                 )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Inline error banner (replaces native alert popups) */}
+        {error && (
+          <div className="max-w-3xl mx-auto mb-5 flex items-start gap-2.5 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+            <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
+            <span>{error}</span>
+            <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-600">✕</button>
           </div>
         )}
 
@@ -270,7 +293,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
               {host.eventTypes.map((ev) => (
                 <button
                   key={ev.id}
-                  onClick={() => { setSelectedEvent(ev); setStep("pick-date"); }}
+                  onClick={() => { setSelectedEvent(ev); setStep("schedule"); }}
                   className="bg-white rounded-2xl border border-gray-100 p-6 text-left hover:shadow-md hover:border-indigo-200 transition-all group"
                 >
                   <div className="w-10 h-10 rounded-xl mb-4 flex items-center justify-center" style={{ backgroundColor: ev.color + "20" }}>
@@ -298,163 +321,168 @@ export default function PublicBookingPage({ username }: { username: string }) {
           </div>
         )}
 
-        {/* ── Step 2 — Pick Date ──────────────────────────────────────── */}
-        {step === "pick-date" && selectedEvent && (
-          <div className="max-w-2xl mx-auto">
+        {/* ── Step 2 — Schedule (date + time, side by side) ────────────── */}
+        {step === "schedule" && selectedEvent && (
+          <div className="max-w-3xl mx-auto">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              {/* Event header */}
               <div className="p-5 border-b border-gray-100" style={{ backgroundColor: selectedEvent.color + "10" }}>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setStep("select-service")} className="p-1.5 rounded-lg hover:bg-white/50 transition-colors">
+                  <button onClick={() => { setStep("select-service"); setSelectedDate(null); }} className="p-1.5 rounded-lg hover:bg-white/50 transition-colors">
                     <ChevronLeft size={16} className="text-gray-600" />
                   </button>
                   <div>
                     <h2 className="font-semibold text-gray-900">{selectedEvent.title}</h2>
-                    <p className="text-xs text-gray-500">{selectedEvent.duration} min · Google Meet</p>
+                    <p className="text-xs text-gray-500 flex items-center gap-2 flex-wrap">
+                      <span className="flex items-center gap-1"><Clock size={11} /> {selectedEvent.duration} min</span>
+                      <span>·</span>
+                      <span className="flex items-center gap-1">
+                        {selectedEvent.location ? <><MapPin size={11} /> {selectedEvent.location}</> : <><Video size={11} /> Google Meet</>}
+                      </span>
+                    </p>
                   </div>
                 </div>
               </div>
-              <div className="p-6">
-                <h3 className="font-semibold text-gray-900 mb-5 text-center">Choose a Date</h3>
-                <div className="flex items-center justify-between mb-4">
-                  <button
-                    onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
-                    className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
-                  >
-                    <ChevronLeft size={16} className="text-gray-500" />
-                  </button>
-                  <span className="font-semibold text-gray-900">
-                    {MONTHS[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-                  </span>
-                  <button
-                    onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
-                    className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
-                  >
-                    <ChevronRight size={16} className="text-gray-500" />
-                  </button>
-                </div>
-                <div className="grid grid-cols-7 mb-2">
-                  {DAYS_SHORT.map((d) => (
-                    <div key={d} className="text-center text-xs font-semibold text-gray-400 py-2">{d}</div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-7 gap-1">
-                  {days.map((day, idx) => {
-                    const disabled = isDisabled(day);
-                    const isSelected = day && selectedDate &&
-                      selectedDate.getDate() === day &&
-                      selectedDate.getMonth() === currentMonth.getMonth() &&
-                      selectedDate.getFullYear() === currentMonth.getFullYear();
-                    const isToday = day &&
-                      today.getDate() === day &&
-                      today.getMonth() === currentMonth.getMonth() &&
-                      today.getFullYear() === currentMonth.getFullYear();
 
-                    return (
+              <div className="grid grid-cols-1 md:grid-cols-2">
+                {/* Calendar pane */}
+                <div className="p-6 md:border-r border-gray-100">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-semibold text-gray-900">
+                      {MONTHS[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+                    </span>
+                    <div className="flex items-center gap-1">
                       <button
-                        key={idx}
-                        disabled={disabled}
-                        onClick={() => {
-                          if (day && !disabled) {
-                            setSelectedDate(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day));
-                            setStep("pick-time");
-                          }
-                        }}
-                        className={`aspect-square flex items-center justify-center rounded-xl text-sm font-medium transition-all ${
-                          !day ? "" :
-                          isSelected ? "text-white shadow-sm" :
-                          isToday ? "border-2 font-bold" :
-                          disabled ? "text-gray-200 cursor-not-allowed" :
-                          "text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
-                        }`}
-                        style={
-                          isSelected ? { backgroundColor: selectedEvent.color } :
-                          isToday    ? { borderColor: selectedEvent.color, color: selectedEvent.color } : {}
-                        }
+                        onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
+                        className="p-2 rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-30"
+                        disabled={currentMonth.getFullYear() === today.getFullYear() && currentMonth.getMonth() === today.getMonth()}
                       >
-                        {day}
+                        <ChevronLeft size={16} className="text-gray-500" />
                       </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── Step 3 — Pick Time ──────────────────────────────────────── */}
-        {step === "pick-time" && selectedEvent && selectedDate && (
-          <div className="max-w-md mx-auto">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="p-5 border-b border-gray-100">
-                <div className="flex items-center gap-2">
-                  <button onClick={() => setStep("pick-date")} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
-                    <ChevronLeft size={16} className="text-gray-600" />
-                  </button>
-                  <div>
-                    <h2 className="font-semibold text-gray-900">
-                      {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
-                    </h2>
-                    <p className="text-xs text-gray-500">{selectedEvent.title} · {selectedEvent.duration} min</p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">Select a Time</h3>
-                {slotsLoading ? (
-                  <div className="flex items-center justify-center py-10">
-                    <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
-                  </div>
-                ) : slots.length === 0 ? (
-                  <div className="text-center py-8 space-y-4">
-                    <p className="text-sm text-gray-400">No available slots on this day.</p>
-                    <button
-                      onClick={() => setStep("pick-date")}
-                      className="text-indigo-500 text-sm font-medium hover:underline block mx-auto"
-                    >
-                      ← Pick another date
-                    </button>
-                    <div className="border-t border-gray-100 pt-4">
-                      <p className="text-xs text-gray-400 mb-3">Fully booked? Join the waitlist and we'll notify you when a slot opens.</p>
                       <button
-                        onClick={() => setStep("waitlist-join")}
-                        className="px-4 py-2 rounded-xl text-sm font-medium border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 transition-colors"
+                        onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
+                        className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
                       >
-                        Join Waitlist
+                        <ChevronRight size={16} className="text-gray-500" />
                       </button>
                     </div>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2.5">
-                    {slots.map((slot) => (
-                      <button
-                        key={slot.start}
-                        onClick={() => { setSelectedSlot(slot); setStep("fill-form"); }}
-                        className="py-3 rounded-xl text-sm font-medium border-2 transition-all hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50"
-                        style={{ borderColor: "#e5e7eb" }}
-                      >
-                        {slot.label}
-                      </button>
+                  <div className="grid grid-cols-7 mb-2">
+                    {DAYS_SHORT.map((d) => (
+                      <div key={d} className="text-center text-xs font-semibold text-gray-400 py-1">{d}</div>
                     ))}
                   </div>
-                )}
+                  <div className="grid grid-cols-7 gap-1">
+                    {days.map((day, idx) => {
+                      const disabled = isDisabled(day);
+                      const isSelected = day && selectedDate &&
+                        selectedDate.getDate() === day &&
+                        selectedDate.getMonth() === currentMonth.getMonth() &&
+                        selectedDate.getFullYear() === currentMonth.getFullYear();
+                      const isToday = day &&
+                        today.getDate() === day &&
+                        today.getMonth() === currentMonth.getMonth() &&
+                        today.getFullYear() === currentMonth.getFullYear();
+
+                      return (
+                        <button
+                          key={idx}
+                          disabled={disabled}
+                          onClick={() => {
+                            if (day && !disabled) {
+                              setSelectedDate(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day));
+                            }
+                          }}
+                          className={`aspect-square flex items-center justify-center rounded-xl text-sm font-medium transition-all ${
+                            !day ? "" :
+                            isSelected ? "text-white shadow-sm" :
+                            disabled ? "text-gray-200 cursor-not-allowed" :
+                            isToday ? "border-2 font-bold text-indigo-600 border-indigo-200 hover:bg-indigo-50" :
+                            "text-gray-700 bg-indigo-50/60 hover:bg-indigo-100 hover:text-indigo-700"
+                          }`}
+                          style={isSelected ? { backgroundColor: selectedEvent.color } : {}}
+                          aria-label={day ? `${MONTHS[currentMonth.getMonth()]} ${day}${disabled ? " (unavailable)" : ""}` : undefined}
+                        >
+                          {day}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {/* Timezone note */}
+                  <div className="flex items-center gap-1.5 mt-5 text-xs text-gray-400">
+                    <Globe size={12} />
+                    <span>Times shown in {GUEST_TZ_LABEL}</span>
+                  </div>
+                </div>
+
+                {/* Times pane */}
+                <div className="p-6">
+                  {!selectedDate ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center py-10 text-gray-400">
+                      <CalendarCheck size={28} className="mb-3 text-gray-300" />
+                      <p className="text-sm">Pick a date to see available times</p>
+                    </div>
+                  ) : (
+                    <>
+                      <h3 className="font-semibold text-gray-900 mb-1">
+                        {selectedDate.toLocaleDateString("en-US", { weekday: "long" })}
+                      </h3>
+                      <p className="text-xs text-gray-400 mb-4">
+                        {selectedDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                      </p>
+                      {slotsLoading ? (
+                        <div className="flex items-center justify-center py-10">
+                          <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
+                        </div>
+                      ) : slots.length === 0 ? (
+                        <div className="text-center py-6 space-y-4">
+                          <p className="text-sm text-gray-400">No available times on this day.</p>
+                          <div className="border-t border-gray-100 pt-4">
+                            <p className="text-xs text-gray-400 mb-3">Fully booked? Join the waitlist and we'll notify you when a slot opens.</p>
+                            <button
+                              onClick={() => setStep("waitlist-join")}
+                              className="px-4 py-2 rounded-xl text-sm font-medium border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 transition-colors"
+                            >
+                              Join Waitlist
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2.5 max-h-[340px] overflow-y-auto pr-1">
+                          {slots.map((slot) => (
+                            <button
+                              key={slot.start}
+                              onClick={() => { setSelectedSlot(slot); setStep("fill-form"); }}
+                              className="py-3 rounded-xl text-sm font-medium border-2 transition-all hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50"
+                              style={{ borderColor: "#e5e7eb" }}
+                            >
+                              {slot.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── Step 4 — Fill Form ──────────────────────────────────────── */}
+        {/* ── Step 3 — Fill Form ──────────────────────────────────────── */}
         {step === "fill-form" && selectedEvent && selectedDate && selectedTime && (
           <div className="max-w-lg mx-auto">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="p-5 border-b border-gray-100" style={{ backgroundColor: selectedEvent.color + "10" }}>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setStep("pick-time")} className="p-1.5 rounded-lg hover:bg-white/50 transition-colors">
+                  <button onClick={() => setStep("schedule")} className="p-1.5 rounded-lg hover:bg-white/50 transition-colors">
                     <ChevronLeft size={16} className="text-gray-600" />
                   </button>
                   <div>
                     <h2 className="font-semibold text-gray-900">{selectedEvent.title}</h2>
                     <p className="text-xs text-gray-500">
                       {selectedDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })} at {selectedTime}
+                      <span className="text-gray-400"> · {GUEST_TZ_LABEL}</span>
                     </p>
                   </div>
                 </div>
@@ -554,7 +582,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
           </div>
         )}
 
-        {/* ── Step 5 — Confirmed ──────────────────────────────────────── */}
+        {/* ── Step 4 — Confirmed ──────────────────────────────────────── */}
         {step === "confirmed" && selectedEvent && selectedDate && selectedTime && (
           <div className="max-w-md mx-auto text-center">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10">
@@ -579,6 +607,10 @@ export default function PublicBookingPage({ username }: { username: string }) {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Time</span>
                   <span className="font-semibold text-gray-900">{selectedTime}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Timezone</span>
+                  <span className="font-semibold text-gray-900">{GUEST_TZ_LABEL}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Duration</span>
@@ -614,7 +646,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="p-5 border-b border-gray-100 bg-amber-50">
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setStep("pick-time")} className="p-1.5 rounded-lg hover:bg-white/50 transition-colors">
+                  <button onClick={() => setStep("schedule")} className="p-1.5 rounded-lg hover:bg-white/50 transition-colors">
                     <ChevronLeft size={16} className="text-gray-600" />
                   </button>
                   <div>
