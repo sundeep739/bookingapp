@@ -23,6 +23,13 @@ function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+// Escape user-supplied strings before embedding in invite email HTML.
+function h(s: string | null | undefined): string {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
+}
+
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -32,6 +39,7 @@ export async function POST(req: NextRequest) {
   const {
     useCase,
     username,
+    name,
     timezone,
     bio,
     org,
@@ -42,6 +50,7 @@ export async function POST(req: NextRequest) {
   }: {
     useCase: string;
     username: string;
+    name?: string;
     timezone: string;
     bio?: string;
     org?: { name: string; slug: string; type: string; description?: string };
@@ -74,6 +83,7 @@ export async function POST(req: NextRequest) {
     data: {
       username,
       timezone: timezone || "UTC",
+      ...(name && name.trim() ? { name: name.trim() } : {}),
       ...(bio !== undefined ? { bio } : {}),
     },
   });
@@ -165,7 +175,7 @@ export async function POST(req: NextRequest) {
             html: `
               <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px">
                 <h2 style="color:#1E1B4B">You've been invited! 🎉</h2>
-                <p><strong>${session.user?.name}</strong> invited you to join <strong>${created.name}</strong> on BookEasy.</p>
+                <p><strong>${h(session.user?.name)}</strong> invited you to join <strong>${h(created.name)}</strong> on BookEasy.</p>
                 <a href="${appUrl}/invite/${invite.token}" style="display:inline-block;background:#4F46E5;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Accept Invitation</a>
                 <p style="color:#666;font-size:14px">This invite expires in 7 days.</p>
               </div>

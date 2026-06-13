@@ -179,6 +179,7 @@ export default function GuidedOnboarding({ userName }: { userName: string }) {
       const payload = {
         useCase,
         username: username.trim(),
+        name: displayName.trim() || undefined,
         timezone,
         bio: bio.trim() || undefined,
         org: isOrg ? {
