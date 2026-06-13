@@ -11,6 +11,8 @@ type Service = {
   price?: number;
   color?: string;
   description?: string | null;
+  capacity?: number;
+  slotInterval?: number;
 };
 type DayAvail = {
   dayOfWeek: number;
@@ -47,6 +49,7 @@ export async function POST(req: NextRequest) {
     services,
     availability,
     invites,
+    workflow,
   }: {
     useCase: string;
     username: string;
@@ -58,6 +61,7 @@ export async function POST(req: NextRequest) {
     services?: Service[];
     availability?: DayAvail[];
     invites?: { email: string; role?: string }[];
+    workflow?: { name: string; trigger: string; offsetMinutes: number; channel: string; message: string };
   } = body;
 
   // ── Validate ────────────────────────────────────────────────────────────
@@ -125,9 +129,26 @@ export async function POST(req: NextRequest) {
           price: Number(svc.price ?? 0),
           color: svc.color ?? "#3b82f6",
           currency: "USD",
+          capacity: Math.max(1, Number(svc.capacity ?? 1)),
+          slotInterval: Number(svc.slotInterval ?? 0),
         },
       }).catch(() => {/* skip dup slug collisions */});
     }
+  }
+
+  // ── 3b. Default reminder workflow ────────────────────────────────────────
+  if (workflow?.message && ["BEFORE", "AFTER"].includes(workflow.trigger) && ["EMAIL", "SMS"].includes(workflow.channel)) {
+    await prisma.workflow.create({
+      data: {
+        userId,
+        name: workflow.name?.trim() || "Booking reminder",
+        trigger: workflow.trigger,
+        offsetMinutes: Math.max(0, Number(workflow.offsetMinutes ?? 1440)),
+        channel: workflow.channel,
+        message: workflow.message.trim(),
+        enabled: true,
+      },
+    }).catch(() => {/* non-fatal */});
   }
 
   // ── 4. Organization (clinic / barbershop / team) ─────────────────────────
