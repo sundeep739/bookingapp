@@ -138,7 +138,11 @@ app_code/
 | POST | `/api/billing/checkout` | Stripe subscription checkout |
 | POST | `/api/billing/portal` | Stripe billing portal |
 | GET/POST | `/api/billing/connect` | Stripe Connect status / onboarding |
+| GET/POST | `/api/workflows` | List / create custom reminder workflows |
+| PUT/DELETE | `/api/workflows/[id]` | Edit / delete a workflow |
 | POST | `/api/onboarding/complete` | Finish guided onboarding |
+
+**Embeddable widget:** `public/embed.js` (inline + popup); booking page renders chrome-less with `?embed=1`.
 
 ---
 
