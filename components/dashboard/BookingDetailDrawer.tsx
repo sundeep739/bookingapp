@@ -135,7 +135,7 @@ export default function BookingDetailDrawer({
           {/* Invitee */}
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0"
-              style={{ background: "linear-gradient(135deg,#e53e6d,#f97316)" }}>
+              style={{ background: "linear-gradient(135deg,#4F46E5,#f97316)" }}>
               {booking.inviteeName?.[0]?.toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
@@ -150,11 +150,11 @@ export default function BookingDetailDrawer({
           {/* Contact */}
           <div className="space-y-3">
             <Row icon={Mail} label="Email">
-              <a href={`mailto:${booking.inviteeEmail}`} className="text-pink-600 hover:underline break-all">{booking.inviteeEmail}</a>
+              <a href={`mailto:${booking.inviteeEmail}`} className="text-indigo-600 hover:underline break-all">{booking.inviteeEmail}</a>
             </Row>
             {booking.inviteePhone && (
               <Row icon={Phone} label="Phone">
-                <a href={`tel:${booking.inviteePhone}`} className="text-pink-600 hover:underline">{booking.inviteePhone}</a>
+                <a href={`tel:${booking.inviteePhone}`} className="text-indigo-600 hover:underline">{booking.inviteePhone}</a>
               </Row>
             )}
           </div>
@@ -179,7 +179,7 @@ export default function BookingDetailDrawer({
             </Row>
             {booking.meetingLink ? (
               <Row icon={Video} label="Meeting link">
-                <a href={booking.meetingLink} target="_blank" rel="noreferrer" className="text-pink-600 hover:underline break-all">{booking.meetingLink}</a>
+                <a href={booking.meetingLink} target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline break-all">{booking.meetingLink}</a>
               </Row>
             ) : booking.location ? (
               <Row icon={MapPin} label="Location"><span className="text-gray-900">{booking.location}</span></Row>
@@ -242,21 +242,21 @@ export default function BookingDetailDrawer({
                 <label className="block text-xs font-medium text-gray-500 mb-1">New date</label>
                 <input type="date" value={rsDate} min={toDateStr(new Date())}
                   onChange={(e) => setRsDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-pink-400" />
+                  className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400" />
               </div>
               {rsDate && (
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">Available times</label>
                   {slotsLoading ? (
-                    <div className="flex justify-center py-4"><Loader2 size={18} className="animate-spin text-pink-400" /></div>
+                    <div className="flex justify-center py-4"><Loader2 size={18} className="animate-spin text-indigo-400" /></div>
                   ) : slots.length === 0 ? (
                     <p className="text-xs text-gray-400 py-2">No open slots on this day.</p>
                   ) : (
                     <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
                       {slots.map((slot) => (
                         <button key={slot.start} onClick={() => setRsSlot(slot)}
-                          className={`py-2 rounded-lg text-xs font-medium border-2 transition-colors ${rsSlot?.start === slot.start ? "text-white border-transparent" : "border-gray-200 text-gray-600 hover:border-pink-300"}`}
-                          style={rsSlot?.start === slot.start ? { backgroundColor: "#e53e6d" } : {}}>
+                          className={`py-2 rounded-lg text-xs font-medium border-2 transition-colors ${rsSlot?.start === slot.start ? "text-white border-transparent" : "border-gray-200 text-gray-600 hover:border-indigo-300"}`}
+                          style={rsSlot?.start === slot.start ? { backgroundColor: "#4F46E5" } : {}}>
                           {slot.label}
                         </button>
                       ))}
@@ -266,7 +266,7 @@ export default function BookingDetailDrawer({
               )}
               <button onClick={submitReschedule} disabled={!rsSlot || rsSaving}
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
-                style={{ backgroundColor: "#e53e6d" }}>
+                style={{ backgroundColor: "#4F46E5" }}>
                 {rsSaving ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
                 Confirm new time
               </button>

@@ -58,7 +58,7 @@ export default function BookingsTable() {
           {filters.map((f) => (
             <button key={f} onClick={() => setActiveFilter(f)}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeFilter === f ? "text-white shadow-sm" : "bg-white text-gray-500 border border-gray-200 hover:border-gray-300"}`}
-              style={activeFilter === f ? { backgroundColor: "#e53e6d" } : {}}>
+              style={activeFilter === f ? { backgroundColor: "#4F46E5" } : {}}>
               {f === "All" ? "All Bookings" : statusConfig[f]?.label}
             </button>
           ))}
@@ -66,13 +66,13 @@ export default function BookingsTable() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
           <input type="text" placeholder="Search bookings..." value={search} onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400 w-64" />
+            className="pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 w-64" />
         </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-pink-400" /></div>
+          <div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>
         ) : filtered.length === 0 ? (
           <div className="py-16 text-center text-gray-400">
             <Clock size={40} className="mx-auto mb-3 opacity-30" />
@@ -96,10 +96,10 @@ export default function BookingsTable() {
                   const s = statusConfig[b.status] ?? statusConfig.PENDING;
                   const SIcon = s.icon;
                   return (
-                    <tr key={b.id} onClick={() => setSelected(b)} className="hover:bg-pink-50/40 transition-colors cursor-pointer">
+                    <tr key={b.id} onClick={() => setSelected(b)} className="hover:bg-indigo-50/40 transition-colors cursor-pointer">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
                             {b.inviteeName?.[0]?.toUpperCase()}
                           </div>
                           <div>

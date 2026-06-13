@@ -125,7 +125,7 @@ export default function OrgBookingPage({ slug }: Props) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search staff..."
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
           {org.departments.length > 0 && (
@@ -190,7 +190,7 @@ function StaffCard({ member, orgSlug, onBook }: { member: any; orgSlug: string; 
           />
         ) : (
           <div className="w-14 h-14 rounded-xl flex-shrink-0 flex items-center justify-center text-white font-bold text-xl"
-            style={{ background: "linear-gradient(135deg,#e53e6d,#f97316)" }}>
+            style={{ background: "linear-gradient(135deg,#4F46E5,#f97316)" }}>
             {(member.user.name || "?")[0]}
           </div>
         )}
@@ -228,7 +228,7 @@ function StaffCard({ member, orgSlug, onBook }: { member: any; orgSlug: string; 
         <button
           onClick={onBook}
           className="mt-4 w-full py-2.5 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-1 group-hover:opacity-90 transition-opacity"
-          style={{ backgroundColor: "#e53e6d" }}
+          style={{ backgroundColor: "#4F46E5" }}
         >
           Book Appointment <ChevronRight size={14} />
         </button>

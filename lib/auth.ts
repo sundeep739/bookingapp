@@ -50,11 +50,11 @@ export const authOptions: NextAuthOptions = {
           html: `
             <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;text-align:center">
               <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:24px">
-                <span style="font-size:20px;font-weight:bold;color:#1a1f36">BookEasy</span>
+                <span style="font-size:20px;font-weight:bold;color:#1E1B4B">BookEasy</span>
               </div>
-              <h2 style="color:#1a1f36">Sign in to your account</h2>
+              <h2 style="color:#1E1B4B">Sign in to your account</h2>
               <p style="color:#6b7280">Click the button below to sign in. This link expires in 15 minutes.</p>
-              <a href="${url}" style="display:inline-block;background:#e53e6d;color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;margin:20px 0">Sign in to BookEasy</a>
+              <a href="${url}" style="display:inline-block;background:#4F46E5;color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600;margin:20px 0">Sign in to BookEasy</a>
               <p style="color:#9ca3af;font-size:13px">If you didn't request this, you can safely ignore this email.</p>
             </div>
           `,

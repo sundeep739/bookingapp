@@ -73,9 +73,9 @@ export async function notifyCancellation(booking: CancelBooking) {
       subject: `A slot just opened — ${booking.eventType.title} with ${hostName}`,
       html: `
         <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
-          <h2 style="color:#1a1f36">Great news — a slot opened up! 🎉</h2>
+          <h2 style="color:#1E1B4B">Great news — a slot opened up! 🎉</h2>
           <p style="color:#6b7280">Hi ${nextInLine.name}, a slot for <strong>${booking.eventType.title}</strong> with <strong>${hostName}</strong> just became available.</p>
-          <a href="${bookingUrl}" style="display:inline-block;background:#e53e6d;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Book Now →</a>
+          <a href="${bookingUrl}" style="display:inline-block;background:#4F46E5;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Book Now →</a>
           <p style="color:#9ca3af;font-size:12px">You're receiving this because you joined the waitlist.</p>
         </div>
       `,

@@ -34,7 +34,7 @@ export default function BookingChart() {
 
       {!chart ? (
         <div className="flex items-center justify-center" style={{ height: 220 }}>
-          <Loader2 className="w-5 h-5 animate-spin text-pink-400" />
+          <Loader2 className="w-5 h-5 animate-spin text-indigo-400" />
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={220}>
@@ -46,7 +46,7 @@ export default function BookingChart() {
               contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
               cursor={{ fill: "#f9fafb" }}
             />
-            <Bar dataKey="bookings" fill="#e53e6d" radius={[6, 6, 0, 0]} name="Bookings" />
+            <Bar dataKey="bookings" fill="#4F46E5" radius={[6, 6, 0, 0]} name="Bookings" />
             {hasRevenue && <Bar dataKey="revenue" fill="#3b82f6" radius={[6, 6, 0, 0]} name="Revenue ($)" />}
           </BarChart>
         </ResponsiveContainer>

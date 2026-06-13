@@ -61,7 +61,7 @@ export default function ImageUpload({
       <div>
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => inputRef.current?.click()}
-            className="text-sm font-medium text-pink-600 hover:text-pink-700">
+            className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
             Upload photo
           </button>
           {value && (

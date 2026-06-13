@@ -68,7 +68,7 @@ export default function ManageBookingPage({ params }: { params: Promise<{ token:
     <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: "#f4f6fb" }}>
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#e53e6d" }}>
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#4F46E5" }}>
             <CalendarCheck className="w-5 h-5 text-white" />
           </div>
           <span className="text-xl font-bold text-gray-900">BookEasy</span>
@@ -76,7 +76,7 @@ export default function ManageBookingPage({ params }: { params: Promise<{ token:
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           {loading ? (
-            <div className="flex items-center justify-center py-10"><Loader2 className="w-6 h-6 animate-spin text-pink-500" /></div>
+            <div className="flex items-center justify-center py-10"><Loader2 className="w-6 h-6 animate-spin text-indigo-500" /></div>
           ) : error ? (
             <div className="text-center py-6">
               <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4"><AlertCircle className="w-7 h-7 text-red-500" /></div>
@@ -88,7 +88,7 @@ export default function ManageBookingPage({ params }: { params: Promise<{ token:
               <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4"><X className="w-7 h-7 text-gray-500" /></div>
               <h2 className="text-xl font-bold text-gray-900 mb-2">Booking Cancelled</h2>
               <p className="text-gray-500 text-sm">Your booking has been cancelled.</p>
-              <a href={`/${booking?.hostUsername}`} className="inline-block mt-6 px-6 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90" style={{ backgroundColor: "#e53e6d" }}>Book Again</a>
+              <a href={`/${booking?.hostUsername}`} className="inline-block mt-6 px-6 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90" style={{ backgroundColor: "#4F46E5" }}>Book Again</a>
             </div>
           ) : mode === "reschedule" ? (
             <>
@@ -97,24 +97,24 @@ export default function ManageBookingPage({ params }: { params: Promise<{ token:
               <p className="text-gray-500 text-sm mb-5">Pick a new time for {booking.eventTitle}.</p>
               <label className="block text-xs font-medium text-gray-500 mb-1">New date</label>
               <input type="date" value={rsDate} min={todayStr} onChange={(e) => setRsDate(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-pink-400 mb-4" />
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400 mb-4" />
               {rsDate && (
                 slotsLoading ? (
-                  <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-pink-400" /></div>
+                  <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-indigo-400" /></div>
                 ) : slots.length === 0 ? (
                   <p className="text-sm text-gray-400 py-2">No open slots on this day.</p>
                 ) : (
                   <div className="grid grid-cols-3 gap-2 max-h-44 overflow-y-auto mb-4">
                     {slots.map((s) => (
                       <button key={s.start} onClick={() => setRsSlot(s)}
-                        className={`py-2 rounded-lg text-xs font-medium border-2 transition-colors ${rsSlot?.start === s.start ? "text-white border-transparent" : "border-gray-200 text-gray-600 hover:border-pink-300"}`}
-                        style={rsSlot?.start === s.start ? { backgroundColor: "#e53e6d" } : {}}>{s.label}</button>
+                        className={`py-2 rounded-lg text-xs font-medium border-2 transition-colors ${rsSlot?.start === s.start ? "text-white border-transparent" : "border-gray-200 text-gray-600 hover:border-indigo-300"}`}
+                        style={rsSlot?.start === s.start ? { backgroundColor: "#4F46E5" } : {}}>{s.label}</button>
                     ))}
                   </div>
                 )
               )}
               <button onClick={submitReschedule} disabled={!rsSlot || rsSaving}
-                className="w-full py-3 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50" style={{ backgroundColor: "#e53e6d" }}>
+                className="w-full py-3 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50" style={{ backgroundColor: "#4F46E5" }}>
                 {rsSaving ? <Loader2 size={15} className="animate-spin" /> : <RefreshCw size={15} />} Confirm new time
               </button>
             </>
@@ -137,7 +137,7 @@ export default function ManageBookingPage({ params }: { params: Promise<{ token:
               </div>
 
               <button onClick={() => { setMode("reschedule"); setRsDate(""); }}
-                className="w-full py-3 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mb-3" style={{ backgroundColor: "#e53e6d" }}>
+                className="w-full py-3 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mb-3" style={{ backgroundColor: "#4F46E5" }}>
                 <RefreshCw size={15} /> Reschedule
               </button>
               <button onClick={handleCancel} disabled={cancelling}

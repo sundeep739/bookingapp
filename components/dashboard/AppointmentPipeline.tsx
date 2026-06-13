@@ -26,7 +26,7 @@ export default function AppointmentPipeline() {
       </div>
 
       {!pipeline ? (
-        <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-pink-400" /></div>
+        <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-indigo-400" /></div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {STAGES.map((col) => {

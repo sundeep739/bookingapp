@@ -58,7 +58,7 @@ export default function IntegrationsPanel() {
   };
 
   if (!status) {
-    return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-pink-500" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-indigo-500" /></div>;
   }
 
   const live = [
@@ -210,11 +210,11 @@ export default function IntegrationsPanel() {
                   </span>
                 )
               ) : i.connect ? (
-                <button onClick={i.connect} className="px-4 py-2 rounded-xl text-sm font-semibold text-white" style={{ backgroundColor: "#e53e6d" }}>
+                <button onClick={i.connect} className="px-4 py-2 rounded-xl text-sm font-semibold text-white" style={{ backgroundColor: "#4F46E5" }}>
                   Connect
                 </button>
               ) : i.manageHref ? (
-                <Link href={i.manageHref} className="px-4 py-2 rounded-xl text-sm font-semibold text-white inline-block" style={{ backgroundColor: "#e53e6d" }}>
+                <Link href={i.manageHref} className="px-4 py-2 rounded-xl text-sm font-semibold text-white inline-block" style={{ backgroundColor: "#4F46E5" }}>
                   Set up
                 </Link>
               ) : (

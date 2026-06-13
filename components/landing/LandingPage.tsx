@@ -17,7 +17,7 @@ const NAV_LINKS = [
 const FEATURES = [
   {
     icon: CalendarCheck,
-    color: "#e53e6d",
+    color: "#4F46E5",
     title: "Smart Booking Pages",
     desc: "Your personal booking link. Clients pick a time that works — no back-and-forth.",
   },
@@ -71,7 +71,7 @@ const USE_CASES = [
   },
   {
     icon: Scissors,
-    color: "#e53e6d",
+    color: "#4F46E5",
     bg: "#fff1f5",
     title: "Barber Shops & Salons",
     desc: "Clients pick their favourite stylist and service. See all staff availability on one page.",
@@ -111,7 +111,7 @@ const PLANS = [
     price: "$12",
     period: "per month",
     desc: "For busy professionals",
-    color: "#e53e6d",
+    color: "#4F46E5",
     features: ["1 user", "Everything in Free", "SMS reminders", "Analytics dashboard", "Waiting list", "Custom availability"],
     cta: "Start Free Trial",
     highlight: true,
@@ -150,7 +150,7 @@ const TESTIMONIALS = [
     name: "Marcus Johnson",
     role: "Owner, Cuts & Style Barbershop",
     avatar: "M",
-    color: "#e53e6d",
+    color: "#4F46E5",
     text: "Went from a paper diary to a full digital booking system in one afternoon. No-shows dropped to almost zero since we started sending SMS reminders.",
   },
   {
@@ -171,7 +171,7 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#e53e6d" }}>
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#4F46E5" }}>
               <CalendarCheck className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-lg text-gray-900">BookEasy</span>
@@ -188,7 +188,7 @@ export default function LandingPage() {
             <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900 font-medium px-3 py-2">Sign in</Link>
             <Link href="/login"
               className="text-sm font-semibold text-white px-4 py-2 rounded-xl transition-opacity hover:opacity-90"
-              style={{ backgroundColor: "#e53e6d" }}>
+              style={{ backgroundColor: "#4F46E5" }}>
               Get Started Free
             </Link>
           </div>
@@ -210,7 +210,7 @@ export default function LandingPage() {
               <Link href="/login" className="text-sm text-gray-600 font-medium py-2">Sign in</Link>
               <Link href="/login"
                 className="text-sm font-semibold text-white px-4 py-2.5 rounded-xl text-center"
-                style={{ backgroundColor: "#e53e6d" }}>
+                style={{ backgroundColor: "#4F46E5" }}>
                 Get Started Free
               </Link>
             </div>
@@ -219,10 +219,10 @@ export default function LandingPage() {
       </nav>
 
       {/* ── Hero ────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #1a1f36 0%, #2d3561 100%)" }}>
+      <section className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #1E1B4B 0%, #4338CA 100%)" }}>
         {/* Decorative blobs */}
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10"
-          style={{ background: "radial-gradient(circle, #e53e6d, transparent)", transform: "translate(30%, -30%)" }} />
+          style={{ background: "radial-gradient(circle, #4F46E5, transparent)", transform: "translate(30%, -30%)" }} />
         <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-10"
           style={{ background: "radial-gradient(circle, #3b82f6, transparent)", transform: "translate(-30%, 30%)" }} />
 
@@ -234,7 +234,7 @@ export default function LandingPage() {
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
             Online bookings for<br />
-            <span style={{ color: "#e53e6d" }}>clinics, shops & pros</span>
+            <span style={{ color: "#4F46E5" }}>clinics, shops & pros</span>
           </h1>
           <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
             Let clients book appointments 24/7. Works for solo professionals, barber shops, medical clinics, and any team-based business. Setup takes 5 minutes.
@@ -243,7 +243,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <Link href="/login"
               className="flex items-center gap-2 px-6 py-3.5 rounded-xl text-white font-semibold text-base hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: "#e53e6d" }}>
+              style={{ backgroundColor: "#4F46E5" }}>
               Start for free <ArrowRight size={18} />
             </Link>
             <a href="#how-it-works"
@@ -339,7 +339,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── How it works ─────────────────────────────────────────────── */}
-      <section id="how-it-works" className="py-20 md:py-28" style={{ backgroundColor: "#f8f9ff" }}>
+      <section id="how-it-works" className="py-20 md:py-28" style={{ backgroundColor: "#F5F3FF" }}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Up and running in minutes</h2>
@@ -352,7 +352,7 @@ export default function LandingPage() {
                   <div className="hidden lg:block absolute top-6 left-full w-full h-px bg-gray-200 z-0" style={{ width: "calc(100% - 24px)", left: "calc(50% + 24px)" }} />
                 )}
                 <div className="bg-white rounded-2xl p-6 border border-gray-100 relative z-10 h-full">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold mb-4" style={{ backgroundColor: "#e53e6d" }}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold mb-4" style={{ backgroundColor: "#4F46E5" }}>
                     {s.n}
                   </div>
                   <h3 className="font-semibold text-gray-900 mb-1.5">{s.title}</h3>
@@ -395,7 +395,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Testimonials ─────────────────────────────────────────────── */}
-      <section className="py-20 md:py-28" style={{ backgroundColor: "#f8f9ff" }}>
+      <section className="py-20 md:py-28" style={{ backgroundColor: "#F5F3FF" }}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <div className="flex justify-center gap-1 mb-3">
@@ -471,7 +471,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA ──────────────────────────────────────────────────────── */}
-      <section className="py-20 md:py-28" style={{ background: "linear-gradient(135deg, #1a1f36 0%, #2d3561 100%)" }}>
+      <section className="py-20 md:py-28" style={{ background: "linear-gradient(135deg, #1E1B4B 0%, #4338CA 100%)" }}>
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-5">
             Ready to stop losing bookings?
@@ -481,7 +481,7 @@ export default function LandingPage() {
           </p>
           <Link href="/login"
             className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-white font-semibold text-base hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: "#e53e6d" }}>
+            style={{ backgroundColor: "#4F46E5" }}>
             Create your free account <ArrowRight size={18} />
           </Link>
           <p className="text-white/30 text-sm mt-4">Free forever · No credit card · 5-minute setup</p>
@@ -492,7 +492,7 @@ export default function LandingPage() {
       <footer className="bg-gray-900 text-gray-400 py-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: "#e53e6d" }}>
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: "#4F46E5" }}>
               <CalendarCheck className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-white">BookEasy</span>

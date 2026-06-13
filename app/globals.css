@@ -1,13 +1,21 @@
 @import "tailwindcss";
 
 :root {
+  /* ── Brand (Indigo) ─────────────────────────────────────────────
+     Single source of truth for the BookEasy brand colour. Components
+     should prefer these tokens over hardcoded hex. */
+  --brand: #4F46E5;          /* primary — buttons, links, active states */
+  --brand-hover: #4338CA;    /* darker, for hover/pressed             */
+  --brand-light: #EEF2FF;    /* tinted fill — selected slots, chips   */
+  --brand-dark: #1E1B4B;     /* deep base — sidebar, hero, dark text  */
+
   --background: #f4f6fb;
-  --foreground: #1a1f36;
-  --sidebar-bg: #1a1f36;
-  --sidebar-text: #a0aec0;
-  --sidebar-active: #e53e6d;
+  --foreground: #1E1B4B;
+  --sidebar-bg: #1E1B4B;
+  --sidebar-text: #a5adcb;
+  --sidebar-active: #4F46E5;
   --card-bg: #ffffff;
-  --accent: #e53e6d;
+  --accent: #4F46E5;
   --accent-blue: #3b82f6;
   --accent-green: #10b981;
   --accent-orange: #f59e0b;

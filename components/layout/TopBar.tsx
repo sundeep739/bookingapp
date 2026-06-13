@@ -20,13 +20,13 @@ export default function TopBar({ title, subtitle }: TopBarProps) {
       <div className="flex items-center gap-2 md:gap-4">
         <button className="relative p-2 rounded-xl hover:bg-gray-50 transition-colors">
           <Bell size={20} className="text-gray-500" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-pink-500 rounded-full" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-indigo-500 rounded-full" />
         </button>
         {session?.user?.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={session.user.image} alt="Profile" width={36} height={36} className="rounded-full w-9 h-9 object-cover" />
         ) : (
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
             {session?.user?.name?.[0] ?? "U"}
           </div>
         )}

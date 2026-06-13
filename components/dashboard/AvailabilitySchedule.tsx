@@ -84,7 +84,7 @@ export default function AvailabilitySchedule() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-pink-500" />
+        <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
       </div>
     );
   }
@@ -95,7 +95,7 @@ export default function AvailabilitySchedule() {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h2 className="text-base font-semibold text-gray-900 mb-4">Timezone</h2>
         <select value={timezone} onChange={(e) => setTimezone(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400">
+          className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
           <option value="America/Los_Angeles">America/Los_Angeles (UTC-8)</option>
           <option value="America/Denver">America/Denver (UTC-7)</option>
           <option value="America/Chicago">America/Chicago (UTC-6)</option>
@@ -118,11 +118,11 @@ export default function AvailabilitySchedule() {
           {DAYS.map((day) => {
             const d = schedule[day];
             return (
-              <div key={day} className={`flex items-start gap-4 p-4 rounded-xl border transition-colors ${d.enabled ? "border-pink-100 bg-pink-50/30" : "border-gray-100 bg-gray-50/50"}`}>
+              <div key={day} className={`flex items-start gap-4 p-4 rounded-xl border transition-colors ${d.enabled ? "border-indigo-100 bg-indigo-50/30" : "border-gray-100 bg-gray-50/50"}`}>
                 <div className="flex items-center gap-3 w-32 flex-shrink-0 pt-0.5">
                   <button onClick={() => toggleDay(day)}
                     className={`w-10 h-6 rounded-full transition-colors relative ${d.enabled ? "" : "bg-gray-200"}`}
-                    style={d.enabled ? { backgroundColor: "#e53e6d" } : {}}>
+                    style={d.enabled ? { backgroundColor: "#4F46E5" } : {}}>
                     <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${d.enabled ? "left-5" : "left-1"}`} />
                   </button>
                   <span className={`text-sm font-medium ${d.enabled ? "text-gray-900" : "text-gray-400"}`}>{day.slice(0, 3)}</span>
@@ -132,10 +132,10 @@ export default function AvailabilitySchedule() {
                     {d.slots.map((slot, idx) => (
                       <div key={idx} className="flex items-center gap-2">
                         <input type="time" value={slot.start} onChange={(e) => updateSlot(day, idx, "start", e.target.value)}
-                          className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400" />
+                          className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
                         <span className="text-gray-400 text-sm">to</span>
                         <input type="time" value={slot.end} onChange={(e) => updateSlot(day, idx, "end", e.target.value)}
-                          className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400" />
+                          className="border border-gray-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
                         {d.slots.length > 1 && (
                           <button onClick={() => removeSlot(day, idx)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
                             <Trash2 size={14} />
@@ -143,7 +143,7 @@ export default function AvailabilitySchedule() {
                         )}
                       </div>
                     ))}
-                    <button onClick={() => addSlot(day)} className="flex items-center gap-1.5 text-xs text-pink-600 hover:text-pink-700 font-medium mt-1">
+                    <button onClick={() => addSlot(day)} className="flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-700 font-medium mt-1">
                       <Plus size={13} /> Add time slot
                     </button>
                   </div>
@@ -159,7 +159,7 @@ export default function AvailabilitySchedule() {
       <div className="flex justify-end">
         <button onClick={handleSave} disabled={saving}
           className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-70 ${saved ? "bg-green-500" : ""}`}
-          style={saved ? {} : { backgroundColor: "#e53e6d" }}>
+          style={saved ? {} : { backgroundColor: "#4F46E5" }}>
           {saving ? <Loader2 size={16} className="animate-spin" /> : saved ? <Check size={16} /> : <Save size={16} />}
           {saving ? "Saving..." : saved ? "Saved!" : "Save Availability"}
         </button>

@@ -23,14 +23,14 @@ export default function UpcomingSchedule() {
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-full">
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-base font-semibold text-gray-900">Today's Schedule</h2>
-        <span className="text-xs text-pink-600 font-medium bg-pink-50 px-2.5 py-1 rounded-full">
+        <span className="text-xs text-indigo-600 font-medium bg-indigo-50 px-2.5 py-1 rounded-full">
           {loading ? "..." : `${meetings.length} meetings`}
         </span>
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-10">
-          <Loader2 className="w-5 h-5 animate-spin text-pink-400" />
+          <Loader2 className="w-5 h-5 animate-spin text-indigo-400" />
         </div>
       ) : meetings.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 text-center">
@@ -60,7 +60,7 @@ export default function UpcomingSchedule() {
       )}
 
       <Link href="/dashboard/bookings">
-        <button className="mt-4 w-full py-2.5 text-sm font-medium text-pink-600 bg-pink-50 rounded-xl hover:bg-pink-100 transition-colors">
+        <button className="mt-4 w-full py-2.5 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-colors">
           View Full Schedule →
         </button>
       </Link>

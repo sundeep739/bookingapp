@@ -52,7 +52,7 @@ export default function TeamPanel() {
 
   if (loading) return (
     <div className="flex items-center justify-center py-20">
-      <Loader2 className="animate-spin text-pink-500" size={32} />
+      <Loader2 className="animate-spin text-indigo-500" size={32} />
     </div>
   );
 
@@ -78,7 +78,7 @@ export default function TeamPanel() {
         <button
           onClick={() => setShowCreate(true)}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-semibold"
-          style={{ backgroundColor: "#e53e6d" }}
+          style={{ backgroundColor: "#4F46E5" }}
         >
           <Plus size={16} /> New Organization
         </button>
@@ -95,7 +95,7 @@ export default function TeamPanel() {
           <button
             onClick={() => setShowCreate(true)}
             className="px-6 py-2.5 rounded-xl text-white font-semibold"
-            style={{ backgroundColor: "#e53e6d" }}
+            style={{ backgroundColor: "#4F46E5" }}
           >
             Create Organization
           </button>
@@ -183,7 +183,7 @@ function OrgDetail({ org, stats, activeTab, setActiveTab, onBack, onRefresh }: a
                 <h2 className="text-xl font-bold text-gray-900">{org.name}</h2>
                 {org.description && <p className="text-sm text-gray-500 mt-0.5">{org.description}</p>}
                 <a href={orgUrl} target="_blank" rel="noreferrer"
-                  className="flex items-center gap-1 text-xs text-pink-500 hover:underline mt-1">
+                  className="flex items-center gap-1 text-xs text-indigo-500 hover:underline mt-1">
                   <ExternalLink size={12} /> {orgUrl}
                 </a>
               </div>
@@ -302,14 +302,14 @@ function MembersTab({ org, onRefresh }: { org: any; onRefresh: () => void }) {
           <button
             onClick={() => setShowInvite(!showInvite)}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-white"
-            style={{ backgroundColor: "#e53e6d" }}
+            style={{ backgroundColor: "#4F46E5" }}
           >
             <Mail size={14} /> Invite Staff
           </button>
         </div>
 
         {showInvite && (
-          <div className="bg-pink-50 rounded-xl p-4 mb-4 space-y-3">
+          <div className="bg-indigo-50 rounded-xl p-4 mb-4 space-y-3">
             <p className="text-sm font-medium text-gray-700">Send email invitation</p>
             <div className="flex gap-2">
               <input
@@ -317,12 +317,12 @@ function MembersTab({ org, onRefresh }: { org: any; onRefresh: () => void }) {
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 placeholder="colleague@example.com"
-                className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+                className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
               />
               <select
                 value={inviteRole}
                 onChange={(e) => setInviteRole(e.target.value)}
-                className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+                className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
               >
                 <option value="MEMBER">Member</option>
                 <option value="ADMIN">Admin</option>
@@ -333,7 +333,7 @@ function MembersTab({ org, onRefresh }: { org: any; onRefresh: () => void }) {
                 onClick={sendInvite}
                 disabled={inviting || !inviteEmail}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-60"
-                style={{ backgroundColor: "#e53e6d" }}
+                style={{ backgroundColor: "#4F46E5" }}
               >
                 {inviting ? <Loader2 size={14} className="animate-spin" /> : <Mail size={14} />}
                 {inviting ? "Sending..." : "Send Invite"}
@@ -357,7 +357,7 @@ function MembersTab({ org, onRefresh }: { org: any; onRefresh: () => void }) {
                     <img src={member.user.image} alt="" className="rounded-xl flex-shrink-0 w-10 h-10 object-cover" />
                   ) : (
                     <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white font-semibold text-sm"
-                      style={{ background: "linear-gradient(135deg,#e53e6d,#f97316)" }}>
+                      style={{ background: "linear-gradient(135deg,#4F46E5,#f97316)" }}>
                       {(member.user.name || "?")[0]}
                     </div>
                   )}
@@ -407,7 +407,7 @@ function MembersTab({ org, onRefresh }: { org: any; onRefresh: () => void }) {
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">Role</label>
                       <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-pink-400">
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-indigo-400">
                         <option value="MEMBER">Member</option>
                         <option value="ADMIN">Admin</option>
                       </select>
@@ -416,19 +416,19 @@ function MembersTab({ org, onRefresh }: { org: any; onRefresh: () => void }) {
                       <label className="block text-xs font-medium text-gray-500 mb-1">Title</label>
                       <input value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                         placeholder="e.g. Senior Stylist"
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-pink-400" />
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-indigo-400" />
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">Department</label>
                       <select value={editForm.deptId} onChange={(e) => setEditForm({ ...editForm, deptId: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-pink-400">
+                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-indigo-400">
                         <option value="">None</option>
                         {(org.departments ?? []).map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
                       </select>
                     </div>
                     <div className="sm:col-span-3 flex items-center gap-2">
                       <button onClick={() => saveEdit(member.id)} disabled={savingEdit}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-60" style={{ backgroundColor: "#e53e6d" }}>
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-60" style={{ backgroundColor: "#4F46E5" }}>
                         {savingEdit ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />} Save
                       </button>
                       <button onClick={() => setEditingId(null)}
@@ -491,7 +491,7 @@ function DepartmentsTab({ org, onRefresh }: { org: any; onRefresh: () => void })
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && addDept()}
           placeholder="Department name..."
-          className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+          className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
         />
         <div className="flex gap-1">
           {DEPT_COLORS.map((c) => (
@@ -502,7 +502,7 @@ function DepartmentsTab({ org, onRefresh }: { org: any; onRefresh: () => void })
         </div>
         <button onClick={addDept} disabled={adding || !newName.trim()}
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium text-white disabled:opacity-60"
-          style={{ backgroundColor: "#e53e6d" }}>
+          style={{ backgroundColor: "#4F46E5" }}>
           <Plus size={14} /> Add
         </button>
       </div>
@@ -570,7 +570,7 @@ function OrgBookingsTab({ slug, members }: { slug: string; members: any[] }) {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-8"><Loader2 className="animate-spin text-pink-400" size={24} /></div>
+        <div className="flex justify-center py-8"><Loader2 className="animate-spin text-indigo-400" size={24} /></div>
       ) : bookings.length === 0 ? (
         <p className="text-center text-gray-400 py-8 text-sm">No bookings yet.</p>
       ) : (
@@ -659,17 +659,17 @@ function OrgSettingsTab({ org, onRefresh, onDeleted }: { org: any; onRefresh: ()
         <div className="sm:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">Organization Name</label>
           <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400" />
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
         </div>
         <div className="sm:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-            rows={2} className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 resize-none" />
+            rows={2} className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none" />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Business Type</label>
           <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
             {ORG_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </div>
@@ -677,26 +677,26 @@ function OrgSettingsTab({ org, onRefresh, onDeleted }: { org: any; onRefresh: ()
           <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
           <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
             placeholder="+1 555 000 0000"
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400" />
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
           <input value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })}
             placeholder="https://..."
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400" />
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
           <input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })}
             placeholder="123 Main St, City"
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400" />
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
         </div>
       </div>
 
       <div className="flex items-center gap-3 pt-2">
         <button onClick={save} disabled={saving}
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold disabled:opacity-60"
-          style={{ backgroundColor: "#e53e6d" }}>
+          style={{ backgroundColor: "#4F46E5" }}>
           {saving ? <Loader2 size={14} className="animate-spin" /> : null}
           {saving ? "Saving..." : "Save Changes"}
         </button>
@@ -714,7 +714,7 @@ function OrgSettingsTab({ org, onRefresh, onDeleted }: { org: any; onRefresh: ()
             href={`/org/${org.slug}`}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1 text-xs text-pink-500 hover:underline whitespace-nowrap"
+            className="flex items-center gap-1 text-xs text-indigo-500 hover:underline whitespace-nowrap"
           >
             <ExternalLink size={12} /> Open
           </a>
@@ -775,12 +775,12 @@ function CreateOrgModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value, slug: autoSlug(e.target.value) })}
               placeholder="City Medical Clinic"
-              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Booking URL *</label>
-            <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-pink-400">
+            <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-indigo-400">
               <span className="px-3 py-2.5 bg-gray-50 text-sm text-gray-500 border-r border-gray-200">bookingapp.com/org/</span>
               <input
                 value={form.slug}
@@ -793,7 +793,7 @@ function CreateOrgModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Business Type</label>
             <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
-              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
               {ORG_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
           </div>
@@ -801,7 +801,7 @@ function CreateOrgModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
             <label className="block text-sm font-medium text-gray-700 mb-1">Description (optional)</label>
             <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={2} placeholder="What does your organization do?"
-              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 resize-none" />
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none" />
           </div>
           {error && <p className="text-sm text-red-500">{error}</p>}
         </div>
@@ -811,7 +811,7 @@ function CreateOrgModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
           </button>
           <button onClick={create} disabled={creating}
             className="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold disabled:opacity-60"
-            style={{ backgroundColor: "#e53e6d" }}>
+            style={{ backgroundColor: "#4F46E5" }}>
             {creating ? "Creating..." : "Create Organization"}
           </button>
         </div>

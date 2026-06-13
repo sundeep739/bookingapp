@@ -36,7 +36,7 @@ export default function LoginButton() {
           We sent a sign-in link to <strong>{email}</strong>. It expires in 15 minutes.
         </p>
         <button onClick={() => { setSent(false); setEmail(""); }}
-          className="text-sm text-pink-600 hover:underline mt-4">
+          className="text-sm text-indigo-600 hover:underline mt-4">
           Use a different email
         </button>
       </div>
@@ -73,14 +73,14 @@ export default function LoginButton() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="w-full pl-10 pr-4 py-3.5 border-2 border-gray-200 rounded-2xl text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-500/10"
+            className="w-full pl-10 pr-4 py-3.5 border-2 border-gray-200 rounded-2xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10"
           />
         </div>
         <button
           type="submit"
           disabled={sending}
           className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-          style={{ backgroundColor: "#e53e6d" }}
+          style={{ backgroundColor: "#4F46E5" }}
         >
           {sending ? <><Loader2 size={16} className="animate-spin" /> Sending link…</> : "Email me a sign-in link"}
         </button>

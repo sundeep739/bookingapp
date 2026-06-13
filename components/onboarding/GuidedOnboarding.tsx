@@ -78,7 +78,7 @@ function weekDefault(fromDay: number, toDay: number, start: string, end: string)
 }
 
 const USE_CASES: { id: UseCase; icon: any; title: string; desc: string; color: string; bg: string }[] = [
-  { id: "individual", icon: UserIcon, title: "Just me", desc: "A personal booking page for meetings or sessions.", color: "#e53e6d", bg: "#fff1f5" },
+  { id: "individual", icon: UserIcon, title: "Just me", desc: "A personal booking page for meetings or sessions.", color: "#4F46E5", bg: "#fff1f5" },
   { id: "clinic", icon: Stethoscope, title: "Clinic / Hospital", desc: "Multiple doctors, departments, and appointment types.", color: "#3b82f6", bg: "#eff6ff" },
   { id: "barbershop", icon: Scissors, title: "Barber / Salon", desc: "Staff, services with prices, and shop hours.", color: "#10b981", bg: "#ecfdf5" },
   { id: "other", icon: Briefcase, title: "Something else", desc: "Tutor, coach, trainer, consultant — fully customizable.", color: "#8b5cf6", bg: "#f5f3ff" },
@@ -222,7 +222,7 @@ export default function GuidedOnboarding({ userName }: { userName: string }) {
       {/* Top bar */}
       <header className="px-4 sm:px-8 py-4 flex items-center justify-between border-b border-gray-100 bg-white">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#e53e6d" }}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#4F46E5" }}>
             <CalendarCheck className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold text-gray-900">BookEasy</span>
@@ -237,7 +237,7 @@ export default function GuidedOnboarding({ userName }: { userName: string }) {
       {/* Progress bar */}
       {useCase && (
         <div className="h-1 bg-gray-100">
-          <div className="h-full transition-all duration-300" style={{ width: `${((stepIdx + 1) / totalSteps) * 100}%`, backgroundColor: "#e53e6d" }} />
+          <div className="h-full transition-all duration-300" style={{ width: `${((stepIdx + 1) / totalSteps) * 100}%`, backgroundColor: "#4F46E5" }} />
         </div>
       )}
 
@@ -308,7 +308,7 @@ export default function GuidedOnboarding({ userName }: { userName: string }) {
               {currentStep === "review" ? (
                 <button onClick={finish} disabled={saving}
                   className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-70"
-                  style={{ backgroundColor: "#e53e6d" }}>
+                  style={{ backgroundColor: "#4F46E5" }}>
                   {saving ? <><Loader2 size={16} className="animate-spin" /> Setting up your account...</> : <><Sparkles size={16} /> Finish & Launch</>}
                 </button>
               ) : (
@@ -321,7 +321,7 @@ export default function GuidedOnboarding({ userName }: { userName: string }) {
                   )}
                   <button onClick={validateAndNext}
                     className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: "#e53e6d" }}>
+                    style={{ backgroundColor: "#4F46E5" }}>
                     Continue <ArrowRight size={16} />
                   </button>
                 </>
@@ -345,11 +345,11 @@ function UseCaseStep({ onChoose }: { onChoose: (uc: UseCase) => void }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {USE_CASES.map((uc) => (
           <button key={uc.id} onClick={() => onChoose(uc.id)}
-            className="bg-white rounded-2xl border-2 border-gray-100 p-6 text-left hover:shadow-md hover:border-pink-200 transition-all group">
+            className="bg-white rounded-2xl border-2 border-gray-100 p-6 text-left hover:shadow-md hover:border-indigo-200 transition-all group">
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: uc.bg }}>
               <uc.icon size={24} style={{ color: uc.color }} />
             </div>
-            <h3 className="font-bold text-gray-900 group-hover:text-pink-600 transition-colors">{uc.title}</h3>
+            <h3 className="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{uc.title}</h3>
             <p className="text-sm text-gray-500 mt-1">{uc.desc}</p>
           </button>
         ))}
@@ -374,11 +374,11 @@ function OrgStep({ useCase, orgName, setOrgName, orgSlug, setOrgSlug }: any) {
           <input value={orgName}
             onChange={(e) => { setOrgName(e.target.value); setOrgSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")); }}
             placeholder={useCase === "clinic" ? "City Medical Centre" : "Sharp Cuts Barbershop"}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
             autoFocus />
         </Field>
         <Field label="Public Page URL">
-          <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-pink-500/20 focus-within:border-pink-400">
+          <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400">
             <span className="px-3 py-3 bg-gray-50 text-gray-400 text-sm border-r border-gray-200 whitespace-nowrap">bookeasy.app/org/</span>
             <input value={orgSlug}
               onChange={(e) => setOrgSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
@@ -402,7 +402,7 @@ function ProfileStep({ isOrg, username, setUsername, displayName, setDisplayName
       />
       <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-5">
         <Field label="Booking Link">
-          <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-pink-500/20 focus-within:border-pink-400">
+          <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400">
             <span className="px-3 py-3 bg-gray-50 text-gray-400 text-sm border-r border-gray-200 whitespace-nowrap">bookeasy.app/</span>
             <input value={username}
               onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))}
@@ -413,16 +413,16 @@ function ProfileStep({ isOrg, username, setUsername, displayName, setDisplayName
         <Field label="Display Name">
           <input value={displayName} onChange={(e) => setDisplayName(e.target.value)}
             placeholder="Dr. Jane Smith"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400" />
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
         </Field>
         <Field label="Short Bio (optional)">
           <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={2}
             placeholder="A line or two about you or your services..."
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400 resize-none" />
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 resize-none" />
         </Field>
         <Field label="Timezone">
           <select value={timezone} onChange={(e) => setTimezone(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400">
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
             {!TIMEZONES.includes(timezone) && <option value={timezone}>{timezone}</option>}
             {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz.replace(/_/g, " ")}</option>)}
           </select>
@@ -454,13 +454,13 @@ function DepartmentsStep({ departments, setDepartments }: { departments: Dept[];
             </div>
             <input value={d.name} onChange={(e) => update(d.key, { name: e.target.value })}
               placeholder="Department name"
-              className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400" />
+              className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
             <button onClick={() => remove(d.key)} className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors">
               <Trash2 size={16} />
             </button>
           </div>
         ))}
-        <button onClick={add} className="flex items-center gap-1.5 text-sm font-medium text-pink-600 hover:text-pink-700 mt-2">
+        <button onClick={add} className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 mt-2">
           <Plus size={16} /> Add department
         </button>
       </div>
@@ -490,7 +490,7 @@ function ServicesStep({ useCase, hasPrices, services, setServices }: { useCase: 
               </button>
               <input value={s.title} onChange={(e) => update(s.key, { title: e.target.value })}
                 placeholder="Service name"
-                className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400" />
+                className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
               <button onClick={() => remove(s.key)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0">
                 <Trash2 size={15} />
               </button>
@@ -500,7 +500,7 @@ function ServicesStep({ useCase, hasPrices, services, setServices }: { useCase: 
                 <Clock size={13} />
                 <input type="number" value={s.duration} min={5} step={5}
                   onChange={(e) => update(s.key, { duration: parseInt(e.target.value) || 0 })}
-                  className="w-16 px-2 py-1 rounded-md border border-gray-200 text-sm focus:outline-none focus:border-pink-400" />
+                  className="w-16 px-2 py-1 rounded-md border border-gray-200 text-sm focus:outline-none focus:border-indigo-400" />
                 min
               </label>
               {hasPrices && (
@@ -508,13 +508,13 @@ function ServicesStep({ useCase, hasPrices, services, setServices }: { useCase: 
                   <DollarSign size={13} />
                   <input type="number" value={s.price} min={0}
                     onChange={(e) => update(s.key, { price: parseFloat(e.target.value) || 0 })}
-                    className="w-20 px-2 py-1 rounded-md border border-gray-200 text-sm focus:outline-none focus:border-pink-400" />
+                    className="w-20 px-2 py-1 rounded-md border border-gray-200 text-sm focus:outline-none focus:border-indigo-400" />
                 </label>
               )}
             </div>
           </div>
         ))}
-        <button onClick={add} className="flex items-center gap-1.5 text-sm font-medium text-pink-600 hover:text-pink-700 mt-1">
+        <button onClick={add} className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 mt-1">
           <Plus size={16} /> Add another
         </button>
       </div>
@@ -536,7 +536,7 @@ function AvailabilityStep({ availability, setAvailability }: { availability: Day
           <div key={d.dayOfWeek} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors ${d.isActive ? "" : "opacity-50"}`}>
             <button onClick={() => update(d.dayOfWeek, { isActive: !d.isActive })}
               className={`w-10 h-6 rounded-full flex items-center transition-colors flex-shrink-0 ${d.isActive ? "justify-end" : "justify-start bg-gray-200"}`}
-              style={d.isActive ? { backgroundColor: "#e53e6d" } : {}}>
+              style={d.isActive ? { backgroundColor: "#4F46E5" } : {}}>
               <span className="w-5 h-5 rounded-full bg-white shadow-sm mx-0.5" />
             </button>
             <span className="w-20 sm:w-24 text-sm font-medium text-gray-700 flex-shrink-0">
@@ -546,10 +546,10 @@ function AvailabilityStep({ availability, setAvailability }: { availability: Day
             {d.isActive ? (
               <div className="flex items-center gap-2 flex-1">
                 <input type="time" value={d.startTime} onChange={(e) => update(d.dayOfWeek, { startTime: e.target.value })}
-                  className="px-2 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-pink-400" />
+                  className="px-2 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-indigo-400" />
                 <span className="text-gray-400 text-sm">to</span>
                 <input type="time" value={d.endTime} onChange={(e) => update(d.dayOfWeek, { endTime: e.target.value })}
-                  className="px-2 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-pink-400" />
+                  className="px-2 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-indigo-400" />
               </div>
             ) : (
               <span className="text-sm text-gray-400 flex-1">Unavailable</span>
@@ -562,7 +562,7 @@ function AvailabilityStep({ availability, setAvailability }: { availability: Day
           const monday = availability.find((d) => d.dayOfWeek === 1);
           if (monday) setAvailability(availability.map((d) => d.isActive ? { ...d, startTime: monday.startTime, endTime: monday.endTime } : d));
         }}
-        className="text-xs text-pink-600 hover:text-pink-700 font-medium mt-3">
+        className="text-xs text-indigo-600 hover:text-indigo-700 font-medium mt-3">
         Apply Monday's hours to all active days
       </button>
     </div>
@@ -586,7 +586,7 @@ function InviteStep({ orgName, invites, setInvites }: { orgName: string; invites
               <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
               <input type="email" value={inv.email} onChange={(e) => update(inv.key, e.target.value)}
                 placeholder="colleague@example.com"
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400" />
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
             </div>
             {invites.length > 1 && (
               <button onClick={() => remove(inv.key)} className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors">
@@ -595,7 +595,7 @@ function InviteStep({ orgName, invites, setInvites }: { orgName: string; invites
             )}
           </div>
         ))}
-        <button onClick={add} className="flex items-center gap-1.5 text-sm font-medium text-pink-600 hover:text-pink-700 mt-1">
+        <button onClick={add} className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 mt-1">
           <Plus size={16} /> Add another
         </button>
       </div>
@@ -669,7 +669,7 @@ function StepHeader({ icon: Icon, title, subtitle }: { icon: any; title: string;
   return (
     <div className="mb-6">
       <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: "#fff1f5" }}>
-        <Icon size={22} style={{ color: "#e53e6d" }} />
+        <Icon size={22} style={{ color: "#4F46E5" }} />
       </div>
       <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{title}</h1>
       <p className="text-gray-500 text-sm mt-1.5">{subtitle}</p>

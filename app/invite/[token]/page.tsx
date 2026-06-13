@@ -44,7 +44,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
 
   if (state === "loading") return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Loader2 className="animate-spin text-pink-500" size={32} />
+      <Loader2 className="animate-spin text-indigo-500" size={32} />
     </div>
   );
 
@@ -53,7 +53,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
       <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#e53e6d" }}>
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#4F46E5" }}>
             <CalendarCheck className="w-5 h-5 text-white" />
           </div>
           <span className="font-bold text-xl tracking-tight text-gray-900">BookEasy</span>
@@ -64,7 +64,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
             <XCircle className="mx-auto text-red-500" size={48} />
             <h2 className="text-xl font-bold text-gray-900">Invite Invalid</h2>
             <p className="text-gray-500">{error}</p>
-            <button onClick={() => router.push("/")} className="w-full py-3 rounded-xl font-semibold text-white" style={{ backgroundColor: "#e53e6d" }}>
+            <button onClick={() => router.push("/")} className="w-full py-3 rounded-xl font-semibold text-white" style={{ backgroundColor: "#4F46E5" }}>
               Go to BookEasy
             </button>
           </div>
@@ -117,7 +117,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
               onClick={accept}
               disabled={state === "accepting"}
               className="w-full py-3 rounded-xl font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
-              style={{ backgroundColor: "#e53e6d" }}
+              style={{ backgroundColor: "#4F46E5" }}
             >
               {state === "accepting" ? <><Loader2 className="animate-spin" size={18} /> Accepting...</> :
                session ? "Accept Invitation" : "Sign in with Google to Accept"}

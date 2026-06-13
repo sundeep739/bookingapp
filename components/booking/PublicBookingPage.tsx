@@ -180,7 +180,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
   if (hostLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#f4f6fb" }}>
-        <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
       </div>
     );
   }
@@ -210,7 +210,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
       {/* Header */}
       <header className="bg-white border-b border-gray-100 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#e53e6d" }}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#4F46E5" }}>
             <CalendarCheck className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold text-gray-900">BookEasy</span>
@@ -230,7 +230,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
                     i < stepIdx ? "bg-green-100 text-green-700" :
                     i === stepIdx ? "text-white" : "bg-gray-100 text-gray-400"
                   }`}
-                  style={i === stepIdx ? { backgroundColor: "#e53e6d" } : {}}
+                  style={i === stepIdx ? { backgroundColor: "#4F46E5" } : {}}
                 >
                   {i < stepIdx ? <Check size={12} /> : <span>{i + 1}</span>}
                   {s.label}
@@ -255,7 +255,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
                   className="w-16 h-16 rounded-2xl object-cover mx-auto mb-4"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
                   {(host.name ?? username)[0].toUpperCase()}
                 </div>
               )}
@@ -271,12 +271,12 @@ export default function PublicBookingPage({ username }: { username: string }) {
                 <button
                   key={ev.id}
                   onClick={() => { setSelectedEvent(ev); setStep("pick-date"); }}
-                  className="bg-white rounded-2xl border border-gray-100 p-6 text-left hover:shadow-md hover:border-pink-200 transition-all group"
+                  className="bg-white rounded-2xl border border-gray-100 p-6 text-left hover:shadow-md hover:border-indigo-200 transition-all group"
                 >
                   <div className="w-10 h-10 rounded-xl mb-4 flex items-center justify-center" style={{ backgroundColor: ev.color + "20" }}>
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: ev.color }} />
                   </div>
-                  <h3 className="font-semibold text-gray-900 group-hover:text-pink-600 transition-colors">{ev.title}</h3>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">{ev.title}</h3>
                   {ev.description && <p className="text-sm text-gray-500 mt-1">{ev.description}</p>}
                   <div className="flex items-center gap-1.5 mt-4 text-xs text-gray-400 flex-wrap">
                     <Clock size={13} />
@@ -364,7 +364,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
                           isSelected ? "text-white shadow-sm" :
                           isToday ? "border-2 font-bold" :
                           disabled ? "text-gray-200 cursor-not-allowed" :
-                          "text-gray-700 hover:bg-pink-50 hover:text-pink-600"
+                          "text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
                         }`}
                         style={
                           isSelected ? { backgroundColor: selectedEvent.color } :
@@ -402,14 +402,14 @@ export default function PublicBookingPage({ username }: { username: string }) {
                 <h3 className="font-semibold text-gray-900 mb-4">Select a Time</h3>
                 {slotsLoading ? (
                   <div className="flex items-center justify-center py-10">
-                    <Loader2 className="w-6 h-6 animate-spin text-pink-500" />
+                    <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
                   </div>
                 ) : slots.length === 0 ? (
                   <div className="text-center py-8 space-y-4">
                     <p className="text-sm text-gray-400">No available slots on this day.</p>
                     <button
                       onClick={() => setStep("pick-date")}
-                      className="text-pink-500 text-sm font-medium hover:underline block mx-auto"
+                      className="text-indigo-500 text-sm font-medium hover:underline block mx-auto"
                     >
                       ← Pick another date
                     </button>
@@ -417,7 +417,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
                       <p className="text-xs text-gray-400 mb-3">Fully booked? Join the waitlist and we'll notify you when a slot opens.</p>
                       <button
                         onClick={() => setStep("waitlist-join")}
-                        className="px-4 py-2 rounded-xl text-sm font-medium border-2 border-pink-200 text-pink-600 hover:bg-pink-50 transition-colors"
+                        className="px-4 py-2 rounded-xl text-sm font-medium border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 transition-colors"
                       >
                         Join Waitlist
                       </button>
@@ -429,7 +429,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
                       <button
                         key={slot.start}
                         onClick={() => { setSelectedSlot(slot); setStep("fill-form"); }}
-                        className="py-3 rounded-xl text-sm font-medium border-2 transition-all hover:border-pink-400 hover:text-pink-600 hover:bg-pink-50"
+                        className="py-3 rounded-xl text-sm font-medium border-2 transition-all hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50"
                         style={{ borderColor: "#e5e7eb" }}
                       >
                         {slot.label}
@@ -469,7 +469,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
                     value={form.name}
                     onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
                     placeholder="Jane Smith"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
                   />
                 </div>
                 <div>
@@ -480,7 +480,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
                     value={form.email}
                     onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
                     placeholder="jane@example.com"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
                   />
                 </div>
                 <div>
@@ -492,14 +492,14 @@ export default function PublicBookingPage({ username }: { username: string }) {
                     value={form.phone}
                     onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
                     placeholder="+1 555 000 0000"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
                   />
                 </div>
                 {/* Custom questions */}
                 {selectedEvent.questions?.map((q) => (
                   <div key={q.id}>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                      {q.label} {q.required && <span className="text-pink-500">*</span>}
+                      {q.label} {q.required && <span className="text-indigo-500">*</span>}
                     </label>
                     {q.type === "textarea" ? (
                       <textarea
@@ -507,14 +507,14 @@ export default function PublicBookingPage({ username }: { username: string }) {
                         value={answers[q.id] ?? ""}
                         onChange={(e) => setAnswers((p) => ({ ...p, [q.id]: e.target.value }))}
                         rows={3}
-                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400 resize-none"
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 resize-none"
                       />
                     ) : q.type === "select" ? (
                       <select
                         required={q.required}
                         value={answers[q.id] ?? ""}
                         onChange={(e) => setAnswers((p) => ({ ...p, [q.id]: e.target.value }))}
-                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400"
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
                       >
                         <option value="">Select an option…</option>
                         {(q.options ?? []).map((o) => <option key={o} value={o}>{o}</option>)}
@@ -525,7 +525,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
                         required={q.required}
                         value={answers[q.id] ?? ""}
                         onChange={(e) => setAnswers((p) => ({ ...p, [q.id]: e.target.value }))}
-                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400"
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
                       />
                     )}
                   </div>
@@ -538,7 +538,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
                     onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
                     placeholder="Add any notes or questions..."
                     rows={3}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400 resize-none"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 resize-none"
                   />
                 </div>
                 <button
@@ -630,14 +630,14 @@ export default function PublicBookingPage({ username }: { username: string }) {
                   <input required type="text" value={waitlistForm.name}
                     onChange={(e) => setWaitlistForm((p) => ({ ...p, name: e.target.value }))}
                     placeholder="Jane Smith"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400" />
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Email *</label>
                   <input required type="email" value={waitlistForm.email}
                     onChange={(e) => setWaitlistForm((p) => ({ ...p, email: e.target.value }))}
                     placeholder="jane@example.com"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400" />
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -646,7 +646,7 @@ export default function PublicBookingPage({ username }: { username: string }) {
                   <input type="tel" value={waitlistForm.phone}
                     onChange={(e) => setWaitlistForm((p) => ({ ...p, phone: e.target.value }))}
                     placeholder="+1 555 000 0000"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400" />
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
                 </div>
                 <button type="submit" disabled={waitlistSubmitting}
                   className="w-full py-3.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-70"

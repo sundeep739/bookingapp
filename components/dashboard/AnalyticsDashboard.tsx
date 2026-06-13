@@ -6,7 +6,7 @@ import {
 } from "recharts";
 import { Loader2 } from "lucide-react";
 
-const PIE_COLORS = ["#e53e6d", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#14b8a6"];
+const PIE_COLORS = ["#4F46E5", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#14b8a6"];
 
 export default function AnalyticsDashboard() {
   const [data, setData] = useState<any>(null);
@@ -17,7 +17,7 @@ export default function AnalyticsDashboard() {
   }, []);
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-pink-500" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-indigo-500" /></div>;
   }
 
   const kpis = [
@@ -61,8 +61,8 @@ export default function AnalyticsDashboard() {
               <AreaChart data={trend}>
                 <defs>
                   <linearGradient id="colorB" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#e53e6d" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="#e53e6d" stopOpacity={0} />
+                    <stop offset="5%"  stopColor="#4F46E5" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#4F46E5" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorR" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%"  stopColor="#3b82f6" stopOpacity={0.15} />
@@ -75,7 +75,7 @@ export default function AnalyticsDashboard() {
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#9ca3af" }} yAxisId="right" orientation="right" />
                 <Tooltip contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }} />
                 <Legend />
-                <Area yAxisId="left"  type="monotone" dataKey="bookings" stroke="#e53e6d" strokeWidth={2.5} fill="url(#colorB)" name="Bookings" />
+                <Area yAxisId="left"  type="monotone" dataKey="bookings" stroke="#4F46E5" strokeWidth={2.5} fill="url(#colorB)" name="Bookings" />
                 <Area yAxisId="right" type="monotone" dataKey="revenue"  stroke="#3b82f6" strokeWidth={2.5} fill="url(#colorR)"  name="Revenue ($)" />
               </AreaChart>
             </ResponsiveContainer>
@@ -124,7 +124,7 @@ export default function AnalyticsDashboard() {
                     <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#9ca3af" }} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#9ca3af" }} />
                     <Tooltip contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }} />
-                    <Bar dataKey="Mon" fill="#e53e6d" radius={[3,3,0,0]} />
+                    <Bar dataKey="Mon" fill="#4F46E5" radius={[3,3,0,0]} />
                     <Bar dataKey="Wed" fill="#3b82f6" radius={[3,3,0,0]} />
                     <Bar dataKey="Fri" fill="#10b981" radius={[3,3,0,0]} />
                   </BarChart>

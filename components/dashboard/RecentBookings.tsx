@@ -34,12 +34,12 @@ export default function RecentBookings() {
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
       <div className="p-6 border-b border-gray-100 flex items-center justify-between">
         <h2 className="text-base font-semibold text-gray-900">Recent Bookings</h2>
-        <a href="/dashboard/bookings" className="text-sm text-pink-600 hover:text-pink-700 font-medium">View all →</a>
+        <a href="/dashboard/bookings" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">View all →</a>
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-10">
-          <Loader2 className="w-5 h-5 animate-spin text-pink-400" />
+          <Loader2 className="w-5 h-5 animate-spin text-indigo-400" />
         </div>
       ) : bookings.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -64,10 +64,10 @@ export default function RecentBookings() {
                 const s = statusConfig[b.status] ?? statusConfig.PENDING;
                 const SIcon = s.icon;
                 return (
-                  <tr key={b.id} onClick={() => setSelected(b)} className="hover:bg-pink-50/40 transition-colors cursor-pointer">
+                  <tr key={b.id} onClick={() => setSelected(b)} className="hover:bg-indigo-50/40 transition-colors cursor-pointer">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
                           {b.inviteeName?.[0]?.toUpperCase()}
                         </div>
                         <div>

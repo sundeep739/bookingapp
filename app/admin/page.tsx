@@ -61,7 +61,7 @@ function StatCard({
   const iconBg: Record<string, string> = {
     blue: "bg-blue-100 text-blue-600", green: "bg-green-100 text-green-600",
     purple: "bg-purple-100 text-purple-600", amber: "bg-amber-100 text-amber-600",
-    rose: "bg-rose-100 text-rose-600",
+    rose: "bg-indigo-100 text-indigo-600",
   };
   const isPositive = delta && !delta.startsWith("-");
   return (
@@ -266,9 +266,9 @@ export default function AdminPage() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-rose-500" />
+              <ShieldAlert className="w-5 h-5 text-indigo-500" />
               <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
-              <span className="text-xs bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full font-medium">Owner only</span>
+              <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium">Owner only</span>
             </div>
             <p className="text-sm text-gray-500 mt-0.5">Platform controls for {session?.user?.email}</p>
           </div>
@@ -284,7 +284,7 @@ export default function AdminPage() {
               onClick={() => setActiveTab(t.id)}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === t.id
-                  ? "border-rose-500 text-rose-600"
+                  ? "border-indigo-500 text-indigo-600"
                   : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -399,14 +399,14 @@ export default function AdminPage() {
               <div className="relative flex-1 min-w-48">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
-                  className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-400"
+                  className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   placeholder="Search by name, email, username…"
                   value={userSearch}
                   onChange={(e) => { setUserSearch(e.target.value); setUserPage(1); }}
                 />
               </div>
               <select
-                className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400"
+                className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 value={userPlanFilter}
                 onChange={(e) => { setUserPlanFilter(e.target.value); setUserPage(1); }}
               >
@@ -888,7 +888,7 @@ export default function AdminPage() {
                 className={`px-4 py-2 text-sm font-medium text-white rounded-lg disabled:opacity-60 ${
                   actionType === "delete" ? "bg-red-600 hover:bg-red-700"
                   : actionType === "suspend" && !actionUser.suspended ? "bg-amber-600 hover:bg-amber-700"
-                  : "bg-rose-600 hover:bg-rose-700"
+                  : "bg-indigo-600 hover:bg-indigo-700"
                 }`}
               >
                 {actionLoading ? "…" : actionType === "delete" ? "Delete permanently"

@@ -14,10 +14,10 @@ export default async function LoginPage() {
       {/* Left Panel */}
       <div
         className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 text-white"
-        style={{ backgroundColor: "#1a1f36" }}
+        style={{ backgroundColor: "#1E1B4B" }}
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#e53e6d" }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#4F46E5" }}>
             <CalendarCheck className="w-6 h-6 text-white" />
           </div>
           <span className="text-2xl font-bold">BookEasy</span>
@@ -26,7 +26,7 @@ export default async function LoginPage() {
         <div className="space-y-6">
           <h2 className="text-4xl font-bold leading-tight">
             Smart scheduling for{" "}
-            <span style={{ color: "#e53e6d" }}>modern professionals</span>
+            <span style={{ color: "#4F46E5" }}>modern professionals</span>
           </h2>
           <p className="text-gray-400 text-lg leading-relaxed">
             Say goodbye to back-and-forth emails. Let your clients book time with you in seconds.
@@ -56,7 +56,7 @@ export default async function LoginPage() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="flex lg:hidden items-center gap-3 mb-8">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#e53e6d" }}>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#4F46E5" }}>
               <CalendarCheck className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900">BookEasy</span>
@@ -70,11 +70,11 @@ export default async function LoginPage() {
 
             <LoginButton />
 
-            <div className="mt-6 p-4 rounded-2xl text-xs text-gray-500 text-center" style={{ backgroundColor: "#f8f9ff" }}>
+            <div className="mt-6 p-4 rounded-2xl text-xs text-gray-500 text-center" style={{ backgroundColor: "#F5F3FF" }}>
               By signing in, you agree to our{" "}
-              <a href="#" className="text-pink-600 hover:underline">Terms of Service</a>{" "}
+              <a href="#" className="text-indigo-600 hover:underline">Terms of Service</a>{" "}
               and{" "}
-              <a href="#" className="text-pink-600 hover:underline">Privacy Policy</a>.
+              <a href="#" className="text-indigo-600 hover:underline">Privacy Policy</a>.
               <br />
               We&apos;ll request access to your Google Calendar to manage bookings.
             </div>

@@ -73,7 +73,7 @@ export default function SettingsPanel() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-pink-500" />
+        <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
       </div>
     );
   }
@@ -87,7 +87,7 @@ export default function SettingsPanel() {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${activeTab === tab ? "text-white shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
-            style={activeTab === tab ? { backgroundColor: "#e53e6d" } : {}}
+            style={activeTab === tab ? { backgroundColor: "#4F46E5" } : {}}
           >
             {tab}
           </button>
@@ -106,7 +106,7 @@ export default function SettingsPanel() {
                 value={form.image ?? session?.user?.image ?? null}
                 onChange={(img) => setForm((p) => ({ ...p, image: img }))}
                 fallback={
-                  <div className="w-full h-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-xl font-bold">
+                  <div className="w-full h-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-xl font-bold">
                     {form.name[0]?.toUpperCase() ?? "U"}
                   </div>
                 }
@@ -117,7 +117,7 @@ export default function SettingsPanel() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
                 <input type="text" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                  placeholder="Your name" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400" />
+                  placeholder="Your name" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
@@ -129,19 +129,19 @@ export default function SettingsPanel() {
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">/</span>
                   <input type="text" value={form.username} onChange={(e) => setForm((p) => ({ ...p, username: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, "") }))}
-                    placeholder="yourname" className="w-full border border-gray-200 rounded-xl pl-7 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400" />
+                    placeholder="yourname" className="w-full border border-gray-200 rounded-xl pl-7 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
                 </div>
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Bio</label>
                 <textarea value={form.bio} onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))}
                   placeholder="Tell people about yourself..." rows={3}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400 resize-none" />
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 resize-none" />
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Timezone</label>
                 <select value={form.timezone} onChange={(e) => setForm((p) => ({ ...p, timezone: e.target.value }))}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400">
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
                   <option value="America/Los_Angeles">America/Los_Angeles (UTC-8)</option>
                   <option value="America/Denver">America/Denver (UTC-7)</option>
                   <option value="America/Chicago">America/Chicago (UTC-6)</option>
@@ -168,7 +168,7 @@ export default function SettingsPanel() {
           <div className="flex justify-end">
             <button onClick={handleSave} disabled={saving}
               className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-70 ${saved ? "bg-green-500" : ""}`}
-              style={saved ? {} : { backgroundColor: "#e53e6d" }}>
+              style={saved ? {} : { backgroundColor: "#4F46E5" }}>
               {saving ? <Loader2 size={16} className="animate-spin" /> : saved ? <Check size={16} /> : <Save size={16} />}
               {saving ? "Saving..." : saved ? "Saved!" : "Save Changes"}
             </button>
@@ -184,7 +184,7 @@ export default function SettingsPanel() {
             <span className="text-sm text-gray-700 font-mono flex-1 truncate">
               {typeof window !== "undefined" ? window.location.origin : "http://localhost:3000"}/{form.username || "your-username"}
             </span>
-            <button onClick={copyLink} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-all flex-shrink-0" style={{ backgroundColor: "#e53e6d" }}>
+            <button onClick={copyLink} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-all flex-shrink-0" style={{ backgroundColor: "#4F46E5" }}>
               <Copy size={13} />{copied ? "Copied!" : "Copy"}
             </button>
             {form.username && (
@@ -308,7 +308,7 @@ function BillingTab({ plan, planStatus, planRenewsAt }: { plan: string; planStat
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-gray-400 uppercase tracking-wide">Current plan</p>
-            <p className="text-2xl font-bold mt-1" style={{ color: "#e53e6d" }}>
+            <p className="text-2xl font-bold mt-1" style={{ color: "#4F46E5" }}>
               {PLANS.find((p) => p.key === plan)?.name ?? "Free"}
             </p>
             {planRenewsAt && plan !== "free" && (
@@ -333,7 +333,7 @@ function BillingTab({ plan, planStatus, planRenewsAt }: { plan: string; planStat
           const isDowngrade = idx < currentIdx;
           return (
             <div key={p.key} className={`rounded-2xl border-2 p-5 ${isCurrent ? "" : "border-gray-100"}`}
-              style={isCurrent ? { borderColor: "#e53e6d", backgroundColor: "#fff1f5" } : {}}>
+              style={isCurrent ? { borderColor: "#4F46E5", backgroundColor: "#fff1f5" } : {}}>
               <div className="flex items-baseline justify-between">
                 <p className="font-bold text-gray-900">{p.name}</p>
                 <p className="text-lg font-bold text-gray-900">{p.price}<span className="text-xs text-gray-400 font-normal">/mo</span></p>
@@ -346,7 +346,7 @@ function BillingTab({ plan, planStatus, planRenewsAt }: { plan: string; planStat
                 ))}
               </ul>
               {isCurrent ? (
-                <div className="text-center py-2 rounded-xl text-sm font-semibold text-white" style={{ backgroundColor: "#e53e6d" }}>
+                <div className="text-center py-2 rounded-xl text-sm font-semibold text-white" style={{ backgroundColor: "#4F46E5" }}>
                   Current plan
                 </div>
               ) : p.key === "free" ? (
@@ -354,7 +354,7 @@ function BillingTab({ plan, planStatus, planRenewsAt }: { plan: string; planStat
               ) : (
                 <button onClick={() => upgrade(p.key)} disabled={!!busy}
                   className="w-full py-2 rounded-xl text-sm font-semibold border-2 transition-colors disabled:opacity-60"
-                  style={{ borderColor: "#e53e6d", color: "#e53e6d" }}>
+                  style={{ borderColor: "#4F46E5", color: "#4F46E5" }}>
                   {busy === p.key ? "Redirecting…" : isDowngrade ? "Switch" : "Upgrade"}
                 </button>
               )}

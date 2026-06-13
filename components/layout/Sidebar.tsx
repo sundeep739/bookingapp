@@ -30,11 +30,11 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   }, []);
 
   return (
-    <aside className="w-64 h-full flex flex-col" style={{ backgroundColor: "#1a1f36" }}>
+    <aside className="w-64 h-full flex flex-col" style={{ backgroundColor: "#1E1B4B" }}>
       {/* Logo */}
       <div className="px-6 py-6 border-b border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#e53e6d" }}>
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#4F46E5" }}>
             <CalendarCheck className="w-5 h-5 text-white" />
           </div>
           <span className="text-white font-bold text-xl tracking-tight">BookEasy</span>
@@ -55,7 +55,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive ? "text-white" : "text-gray-400 hover:text-white hover:bg-white/5"
               }`}
-              style={isActive ? { backgroundColor: "#e53e6d" } : {}}>
+              style={isActive ? { backgroundColor: "#4F46E5" } : {}}>
               <Icon size={18} className="flex-shrink-0" />
               <span className="flex-1">{label}</span>
               {isActive && <ChevronRight size={14} className="opacity-70" />}
@@ -72,7 +72,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={session.user.image} alt="Profile" width={36} height={36} className="rounded-full flex-shrink-0 w-9 h-9 object-cover" />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-pink-500 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+              <div className="w-9 h-9 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
                 {session?.user?.name?.[0] ?? "U"}
               </div>
             )}

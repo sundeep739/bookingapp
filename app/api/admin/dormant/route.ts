@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
     if (!user.email) { failed++; continue; }
 
     const graceNote = graceDays
-      ? `If you'd like to keep your account, simply <a href="${APP_URL}/login" style="color:#e53e6d">log in</a> within the next ${graceDays} days.`
+      ? `If you'd like to keep your account, simply <a href="${APP_URL}/login" style="color:#4F46E5">log in</a> within the next ${graceDays} days.`
       : "";
 
     try {
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
         subject: "We miss you — your BookEasy account",
         html: `
           <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px">
-            <h2 style="color:#1a1f36">Hi ${user.name ?? "there"},</h2>
+            <h2 style="color:#1E1B4B">Hi ${user.name ?? "there"},</h2>
             <p style="color:#6b7280">
               ${customMsg
                 ? customMsg
@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
             </p>
             ${graceNote ? `<p style="color:#6b7280">${graceNote}</p>` : ""}
             <a href="${APP_URL}/dashboard"
-               style="display:inline-block;background:#e53e6d;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin:16px 0">
+               style="display:inline-block;background:#4F46E5;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin:16px 0">
               Go to my account →
             </a>
             <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0"/>

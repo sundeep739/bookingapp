@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     subject: `You're on the waitlist!`,
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
-        <h2 style="color:#1a1f36">You're on the waitlist! 🎉</h2>
+        <h2 style="color:#1E1B4B">You're on the waitlist! 🎉</h2>
         <p style="color:#6b7280">Hi ${name}, we've added you to the waitlist for <strong>${host.name}</strong>.</p>
         <p style="color:#6b7280">We'll email you as soon as a slot opens up. You don't need to do anything else.</p>
         <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0"/>

@@ -12,7 +12,7 @@ export default function DashboardStats() {
   const stats = [
     { label: "Total Bookings",  value: data ? String(data.totalBookings) : "—",  change: "All time",           icon: CalendarCheck, color: "#3b82f6", bg: "#eff6ff" },
     { label: "This Week",       value: data ? String(data.thisWeek) : "—",        change: "New this week",      icon: Clock,         color: "#10b981", bg: "#ecfdf5" },
-    { label: "Monthly Revenue", value: data ? `$${data.revenue.toFixed(0)}` : "—", change: "This month",       icon: DollarSign,    color: "#e53e6d", bg: "#fff1f5" },
+    { label: "Monthly Revenue", value: data ? `$${data.revenue.toFixed(0)}` : "—", change: "This month",       icon: DollarSign,    color: "#4F46E5", bg: "#fff1f5" },
     { label: "Pending Review",  value: data ? String(data.pending) : "—",         change: "Needs attention",    icon: AlertCircle,   color: "#f59e0b", bg: "#fffbeb" },
   ];
 

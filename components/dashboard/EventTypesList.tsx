@@ -20,7 +20,7 @@ type EventType = {
   _count: { bookings: number };
 };
 
-const colorOptions = ["#e53e6d", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316"];
+const colorOptions = ["#4F46E5", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316"];
 const locationOptions = [
   { value: "Google Meet", label: "Google Meet" },
   { value: "Zoom", label: "Zoom" },
@@ -94,26 +94,26 @@ function EventModal({
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Title *</label>
             <input type="text" value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-              placeholder="e.g. 30 Minute Meeting" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400" />
+              placeholder="e.g. 30 Minute Meeting" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
             <textarea value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
               placeholder="What's this meeting about?" rows={2}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400 resize-none" />
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 resize-none" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Duration (minutes)</label>
               <select value={form.duration} onChange={(e) => setForm((p) => ({ ...p, duration: e.target.value }))}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400">
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
                 {[15, 20, 30, 45, 60, 90, 120].map((d) => <option key={d} value={d}>{d} min</option>)}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Location</label>
               <select value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400">
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
                 {locationOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
@@ -133,7 +133,7 @@ function EventModal({
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
               <input type="number" min="0" step="0.01" value={form.price} onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))}
-                className="w-full border border-gray-200 rounded-xl pl-7 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400" />
+                className="w-full border border-gray-200 rounded-xl pl-7 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
             </div>
           </div>
           {/* Custom booking questions */}
@@ -142,7 +142,7 @@ function EventModal({
               <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
                 <HelpCircle size={14} className="text-gray-400" /> Booking Questions
               </label>
-              <button type="button" onClick={addQuestion} className="flex items-center gap-1 text-xs font-medium text-pink-600 hover:text-pink-700">
+              <button type="button" onClick={addQuestion} className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700">
                 <Plus size={13} /> Add question
               </button>
             </div>
@@ -158,7 +158,7 @@ function EventModal({
                       <GripVertical size={14} className="text-gray-300 flex-shrink-0" />
                       <input value={q.label} onChange={(e) => updateQuestion(q.id, { label: e.target.value })}
                         placeholder="Question label"
-                        className="flex-1 min-w-0 px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-pink-400" />
+                        className="flex-1 min-w-0 px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-indigo-400" />
                       <button type="button" onClick={() => removeQuestion(q.id)}
                         className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0">
                         <Trash2 size={14} />
@@ -166,20 +166,20 @@ function EventModal({
                     </div>
                     <div className="flex items-center gap-2 pl-6 flex-wrap">
                       <select value={q.type} onChange={(e) => updateQuestion(q.id, { type: e.target.value as Question["type"] })}
-                        className="px-2 py-1 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-pink-400">
+                        className="px-2 py-1 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-indigo-400">
                         <option value="text">Short text</option>
                         <option value="textarea">Long text</option>
                         <option value="select">Dropdown</option>
                       </select>
                       <label className="flex items-center gap-1.5 text-xs text-gray-500">
                         <input type="checkbox" checked={q.required} onChange={(e) => updateQuestion(q.id, { required: e.target.checked })}
-                          className="rounded accent-pink-500" />
+                          className="rounded accent-indigo-500" />
                         Required
                       </label>
                       {q.type === "select" && (
                         <input value={(q.options ?? []).join(", ")} onChange={(e) => updateQuestion(q.id, { options: e.target.value.split(",").map((s) => s.trim()) })}
                           placeholder="Option 1, Option 2, Option 3"
-                          className="flex-1 min-w-[140px] px-2 py-1 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-pink-400" />
+                          className="flex-1 min-w-[140px] px-2 py-1 rounded-md border border-gray-200 text-xs focus:outline-none focus:border-indigo-400" />
                       )}
                     </div>
                   </div>
@@ -193,7 +193,7 @@ function EventModal({
             <button type="button" onClick={onClose} className="flex-1 py-3 rounded-xl text-sm font-semibold border-2 border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
             <button type="submit" disabled={saving}
               className="flex-1 py-3 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-70"
-              style={{ backgroundColor: "#e53e6d" }}>
+              style={{ backgroundColor: "#4F46E5" }}>
               {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
               {saving ? "Saving..." : isEdit ? "Save Changes" : "Create"}
             </button>
@@ -251,7 +251,7 @@ export default function EventTypesList() {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-pink-500" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-indigo-500" /></div>;
   }
 
   return (
@@ -267,7 +267,7 @@ export default function EventTypesList() {
       <div className="flex justify-end">
         <button onClick={() => { setEditingEvent(null); setModalOpen(true); }}
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors hover:opacity-90"
-          style={{ backgroundColor: "#e53e6d" }}>
+          style={{ backgroundColor: "#4F46E5" }}>
           <Plus size={16} />New Event Type
         </button>
       </div>
@@ -281,7 +281,7 @@ export default function EventTypesList() {
           <p className="text-gray-500 text-sm mb-6">Create your first event type to start accepting bookings.</p>
           <button onClick={() => { setEditingEvent(null); setModalOpen(true); }}
             className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90"
-            style={{ backgroundColor: "#e53e6d" }}>
+            style={{ backgroundColor: "#4F46E5" }}>
             Create Event Type
           </button>
         </div>
@@ -303,7 +303,7 @@ export default function EventTypesList() {
                   </div>
                   <button onClick={() => handleToggle(ev)} className="mt-1 flex-shrink-0">
                     {ev.isActive
-                      ? <ToggleRight size={28} style={{ color: "#e53e6d" }} />
+                      ? <ToggleRight size={28} style={{ color: "#4F46E5" }} />
                       : <ToggleLeft size={28} className="text-gray-300" />}
                   </button>
                 </div>
@@ -331,11 +331,11 @@ export default function EventTypesList() {
 
           {/* Add card */}
           <button onClick={() => { setEditingEvent(null); setModalOpen(true); }}
-            className="border-2 border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 hover:border-pink-300 hover:bg-pink-50/30 transition-all group min-h-[160px]">
-            <div className="w-12 h-12 rounded-xl bg-gray-50 group-hover:bg-pink-100 flex items-center justify-center transition-colors">
-              <Plus size={24} className="text-gray-400 group-hover:text-pink-500" />
+            className="border-2 border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all group min-h-[160px]">
+            <div className="w-12 h-12 rounded-xl bg-gray-50 group-hover:bg-indigo-100 flex items-center justify-center transition-colors">
+              <Plus size={24} className="text-gray-400 group-hover:text-indigo-500" />
             </div>
-            <span className="text-sm font-medium text-gray-500 group-hover:text-pink-600">Add New Event Type</span>
+            <span className="text-sm font-medium text-gray-500 group-hover:text-indigo-600">Add New Event Type</span>
           </button>
         </div>
       )}

@@ -164,9 +164,9 @@ export async function POST(req: NextRequest) {
             subject: `You're invited to join ${created.name} on BookEasy`,
             html: `
               <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px">
-                <h2 style="color:#1a1f36">You've been invited! 🎉</h2>
+                <h2 style="color:#1E1B4B">You've been invited! 🎉</h2>
                 <p><strong>${session.user?.name}</strong> invited you to join <strong>${created.name}</strong> on BookEasy.</p>
-                <a href="${appUrl}/invite/${invite.token}" style="display:inline-block;background:#e53e6d;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Accept Invitation</a>
+                <a href="${appUrl}/invite/${invite.token}" style="display:inline-block;background:#4F46E5;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Accept Invitation</a>
                 <p style="color:#666;font-size:14px">This invite expires in 7 days.</p>
               </div>
             `,
