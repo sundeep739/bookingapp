@@ -1,6 +1,13 @@
 import PublicBookingPage from "@/components/booking/PublicBookingPage";
 
-export default async function UserBookingPage({ params }: { params: Promise<{ username: string }> }) {
+export default async function UserBookingPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ username: string }>;
+  searchParams: Promise<{ embed?: string }>;
+}) {
   const { username } = await params;
-  return <PublicBookingPage username={username} />;
+  const { embed } = await searchParams;
+  return <PublicBookingPage username={username} embed={embed === "1"} />;
 }

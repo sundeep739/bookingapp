@@ -37,7 +37,7 @@ function toDateStr(date: Date): string {
 const GUEST_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const GUEST_TZ_LABEL = GUEST_TZ.replace(/_/g, " ");
 
-export default function PublicBookingPage({ username }: { username: string }) {
+export default function PublicBookingPage({ username, embed = false }: { username: string; embed?: boolean }) {
   const [step, setStep]                   = useState<Step>("select-service");
   const [host, setHost]                   = useState<HostProfile | null>(null);
   const [hostLoading, setHostLoading]     = useState(true);
@@ -89,6 +89,17 @@ export default function PublicBookingPage({ username }: { username: string }) {
       .then((data) => setSlots(data.slots ?? []))
       .finally(() => setSlotsLoading(false));
   }, [selectedDate, selectedEvent, username]);
+
+  // In embed mode, report content height to the parent page so inline iframes
+  // can auto-size to fit (the embed.js script listens for these messages).
+  useEffect(() => {
+    if (!embed || typeof window === "undefined") return;
+    const post = () => window.parent?.postMessage({ type: "bookeasy:height", height: document.body.scrollHeight }, "*");
+    post();
+    const ro = new ResizeObserver(post);
+    ro.observe(document.body);
+    return () => ro.disconnect();
+  }, [embed, step, slots, selectedDate]);
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -220,20 +231,22 @@ export default function PublicBookingPage({ username }: { username: string }) {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#f4f6fb" }}>
-      {/* Header */}
-      <header className="bg-white border-b border-gray-100 px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#4F46E5" }}>
-            <CalendarCheck className="w-4 h-4 text-white" />
+    <div className={embed ? "" : "min-h-screen"} style={embed ? {} : { backgroundColor: "#f4f6fb" }}>
+      {/* Header (hidden in embed mode) */}
+      {!embed && (
+        <header className="bg-white border-b border-gray-100 px-6 py-4">
+          <div className="max-w-5xl mx-auto flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#4F46E5" }}>
+              <CalendarCheck className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-bold text-gray-900">BookEasy</span>
+            <span className="text-gray-300 mx-1">·</span>
+            <span className="text-gray-500 text-sm">@{username}</span>
           </div>
-          <span className="font-bold text-gray-900">BookEasy</span>
-          <span className="text-gray-300 mx-1">·</span>
-          <span className="text-gray-500 text-sm">@{username}</span>
-        </div>
-      </header>
+        </header>
+      )}
 
-      <div className="max-w-5xl mx-auto px-6 py-10">
+      <div className={embed ? "max-w-5xl mx-auto px-4 py-6" : "max-w-5xl mx-auto px-6 py-10"}>
         {/* Progress bar */}
         {step !== "confirmed" && step !== "waitlist-join" && step !== "waitlist-confirmed" && (
           <div className="flex items-center justify-center gap-2 mb-8">

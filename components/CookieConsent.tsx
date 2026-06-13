@@ -7,7 +7,9 @@ export default function CookieConsent() {
 
   useEffect(() => {
     try {
-      if (!localStorage.getItem("be_cookie_consent")) setShow(true);
+      // Don't show inside an embedded iframe — that's the host site's responsibility.
+      const isEmbed = new URLSearchParams(window.location.search).get("embed") === "1";
+      if (!isEmbed && !localStorage.getItem("be_cookie_consent")) setShow(true);
     } catch { /* ignore */ }
   }, []);
 
