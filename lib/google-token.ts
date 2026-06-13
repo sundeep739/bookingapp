@@ -9,9 +9,12 @@ import { prisma } from "@/lib/prisma";
 export async function getFreshGoogleAccessToken(userId: string): Promise<string | null> {
   const account = await prisma.account.findFirst({
     where: { userId, provider: "google" },
-    select: { id: true, access_token: true, refresh_token: true, expires_at: true },
+    select: { id: true, access_token: true, refresh_token: true, expires_at: true, scope: true },
   });
   if (!account) return null;
+  // Calendar is opt-in (incremental auth). If the user hasn't granted the
+  // calendar scope, there's nothing to do — let calendar features no-op.
+  if (!account.scope?.includes("calendar")) return null;
 
   const now = Math.floor(Date.now() / 1000);
   const stillValid = account.access_token && account.expires_at && account.expires_at - 60 > now;

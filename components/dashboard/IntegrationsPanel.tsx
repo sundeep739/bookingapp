@@ -1,8 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
-import { CheckCircle, Loader2, Copy, RefreshCw, ExternalLink } from "lucide-react";
-import { signIn } from "next-auth/react";
+import { CheckCircle, Loader2, Copy, RefreshCw, ExternalLink, AlertCircle } from "lucide-react";
 import Link from "next/link";
+
+const CALENDAR_BANNERS: Record<string, { ok: boolean; text: string }> = {
+  connected: { ok: true,  text: "Google Calendar connected — bookings will sync automatically." },
+  denied:    { ok: false, text: "Calendar access wasn't granted. You can try connecting again." },
+  conflict:  { ok: false, text: "That Google account is already linked to another BookEasy account." },
+  error:     { ok: false, text: "Couldn't connect Google Calendar. Please try again." },
+};
+
+const connectGoogleCalendar = () => { window.location.href = "/api/integrations/google/connect"; };
 
 type Status = {
   googleCalendar: boolean;
@@ -18,10 +26,18 @@ export default function IntegrationsPanel() {
   const [feedLoading, setFeedLoading] = useState(false);
   const [copied, setCopied]           = useState(false);
   const [rotating, setRotating]       = useState(false);
+  const [banner, setBanner]           = useState<{ ok: boolean; text: string } | null>(null);
 
   useEffect(() => {
     fetch("/api/integrations/status").then((r) => r.json()).then(setStatus).catch(() => {});
     loadFeedUrl();
+    // Show the result of the Google Calendar connect flow, then clean the URL.
+    const params = new URLSearchParams(window.location.search);
+    const cal = params.get("calendar");
+    if (cal && CALENDAR_BANNERS[cal]) {
+      setBanner(CALENDAR_BANNERS[cal]);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
   }, []);
 
   const loadFeedUrl = async () => {
@@ -66,13 +82,13 @@ export default function IntegrationsPanel() {
       name: "Google Calendar", logo: "🗓️", color: "#4285F4", category: "Calendar",
       description: "Two-way sync: bookings are added to your Google Calendar and busy times block new slots automatically.",
       connected: status.googleCalendar,
-      connect: () => signIn("google", { callbackUrl: "/dashboard/integrations" }),
+      connect: connectGoogleCalendar,
     },
     {
       name: "Google Meet", logo: "📹", color: "#00AC47", category: "Video",
       description: "Every new booking automatically gets a Google Meet video link sent to both host and guest.",
       connected: status.googleMeet,
-      connect: () => signIn("google", { callbackUrl: "/dashboard/integrations" }),
+      connect: connectGoogleCalendar,
     },
     {
       name: "Stripe Payments", logo: "💳", color: "#635BFF", category: "Payments",
@@ -100,6 +116,14 @@ export default function IntegrationsPanel() {
 
   return (
     <div className="space-y-6">
+      {banner && (
+        <div className={`flex items-start gap-2.5 rounded-xl px-4 py-3 text-sm border ${banner.ok ? "bg-green-50 border-green-200 text-green-700" : "bg-red-50 border-red-200 text-red-700"}`}>
+          {banner.ok ? <CheckCircle size={16} className="flex-shrink-0 mt-0.5" /> : <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />}
+          <span>{banner.text}</span>
+          <button onClick={() => setBanner(null)} className="ml-auto opacity-60 hover:opacity-100">✕</button>
+        </div>
+      )}
+
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
         <p className="text-sm text-gray-500">Active integrations</p>
         <p className="text-2xl font-bold text-gray-900">{connectedCount} / {live.length}</p>

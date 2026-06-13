@@ -26,13 +26,13 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       allowDangerousEmailAccountLinking: false,
+      // Sign-in only needs basic identity scopes — these are NON-sensitive, so
+      // the app can be published to production without Google verification and
+      // without the "unverified app" warning. The Google Calendar scope (which
+      // is sensitive) is requested separately, opt-in, via
+      // /api/integrations/google/connect when the user connects their calendar.
       authorization: {
-        params: {
-          scope:
-            "openid email profile https://www.googleapis.com/auth/calendar",
-          access_type: "offline",
-          prompt: "consent",
-        },
+        params: { scope: "openid email profile" },
       },
     }),
     EmailProvider({
