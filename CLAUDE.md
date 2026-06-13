@@ -78,6 +78,7 @@ app_code/
 │   ├── cancellation.ts         # Shared cancel side-effects (delete event + emails + waitlist)
 │   ├── stripe.ts               # Stripe client, plan price IDs, planFromPriceId
 │   ├── plan.ts                 # Plan limits, effectivePlan(), limitsFor()
+│   ├── slots.ts                # getFreeSlots() — shared slot generation (single host + round-robin)
 │   └── rate-limit.ts           # In-memory fixed-window rate limiter
 ├── prisma/schema.prisma
 ├── scripts/
@@ -105,6 +106,7 @@ app_code/
 | POST | `/api/waitlist` | Join waitlist (rate-limited: 5/min/IP) |
 | GET | `/api/waitlist` | Waitlist count for an event type |
 | GET | `/api/org/[slug]/public` | Org profile + members |
+| GET/POST | `/api/org/[slug]/round-robin` | Team "any available staff": GET unions staff availability for a service; POST load-balances + books |
 | GET | `/api/invite/[token]` | Validate org invite token |
 | POST | `/api/invite/[token]` | Accept org invite |
 | POST | `/api/webhooks/stripe` | Stripe webhook receiver |
@@ -157,6 +159,8 @@ User
 EventType
   ├── title, slug, duration, price, currency, location, description
   ├── bufferBefore, bufferAfter, minNotice, maxDaysAhead
+  ├── slotInterval                  ← minutes between start times; 0 = step by duration
+  ├── capacity                      ← attendees per slot; >1 = group/class event
   ├── questions (Json)              ← custom booking questions
   ├── isActive
   └── Booking[]
